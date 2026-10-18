@@ -248,10 +248,16 @@ GEAR = {
     "sturdy_boots": sturdy_boots, "puddle_boots": puddle_boots, "squeaky_boots": squeaky_boots, "bunny_slippers": bunny_slippers,
 }
 
+HELD = {wooden_sword: 30, knight_sword: 30, magic_wand: 26, spoon_sword: 30, banana_blaster: 34, noodle_whip: 26}
+
 
 def overlay(fn) -> str:
     """The gear in the hero's frame, transparent, to lay over the hero."""
     defs, body, _ = fn()
+    if fn in HELD:
+        # Held things are drawn standing straight up from the hand; on the hero they lean forward and
+        # shrink a little, so the blade or wand points away from the face instead of across it.
+        body = f'<g transform="translate(220 212) rotate({HELD[fn]}) scale(0.86) translate(-220 -212)">{body}</g>'
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">\n<defs>{defs}</defs>\n'
             f'<g id="all">{body}</g>\n</svg>')
 

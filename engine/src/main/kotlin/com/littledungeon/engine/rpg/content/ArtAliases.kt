@@ -9,6 +9,7 @@ object ArtAliases {
         "monster_bandit_bess" to "npc_bandit_bess",
         "monster_ink_shadow" to "shadow",
         "monster_big_dragon" to "dragon_big",
+        "npc_pip_bat" to "monster_bat",
     )
 
     fun resolve(art: String): String = names[art] ?: art

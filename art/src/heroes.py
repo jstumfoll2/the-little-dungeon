@@ -23,15 +23,27 @@ BABY = {
     "wing": "#ffd36b", "wing_dark": "#f0a02c", "horn": "#fff4dc",
 }
 
+# The great red dragon of Dragon's Peak: red scales, a golden belly and golden spikes (the story finds
+# one of its golden scales on the Windy Pass), amber eyes and long swept-back horns.
 BIG = {
-    "light": "#b8a4ff", "mid": "#8a6fe6", "dark": "#6447c4", "spike": "#ffcf5a",
-    "belly_top": "#fff6dc", "belly_bottom": "#ffd99a", "stripe": "#eec27a",
-    "outline": "#2e1e66", "spot": "#6447c4", "cheek": "#ff8fb0",
-    "wing": "#7fd4ff", "wing_dark": "#3a9ad6", "horn": "#fff4dc",
+    "light": "#ff9a72", "mid": "#e2483a", "dark": "#a8262a", "spike": "#ffc23a",
+    "belly_top": "#fff2c4", "belly_bottom": "#ffc95a", "stripe": "#e8a83a",
+    "outline": "#561018", "spot": "#ffd36a", "cheek": "#ff8f9a",
+    "wing": "#ffb46a", "wing_dark": "#c8402c", "horn": "#ffe9a8",
+    "iris": ("#e0a020", "#6a3a08"), "grand": True,
 }
 
 DRAGON_LAYERS = ["shadow", "wing-back", "tail", "leg-back", "body", "leg-front", "wing-front", "arm", "head",
                  "eye-open", "eye-closed", "mouth-calm", "mouth-happy", "mouth-talk"]
+
+
+GRAND_HORNS = '''
+  <path d="M166 44 C146 32 136 14 140 2 C154 14 170 24 186 34 Z" fill="{h}" {s}/>
+  <path d="M196 34 C202 16 216 4 232 2 C226 16 222 28 214 36 Z" fill="{h}" {s}/>
+  <path d="M150 22 l8 6 M210 14 l8 4" stroke="#c89a3a" stroke-width="3" stroke-linecap="round"/>'''
+GRAND_HEAD = '''
+  <path d="M134 92 L116 92 L134 104 Z M144 110 L128 118 L148 120 Z" fill="url(#spikeFill)" {s}/>
+  <path d="M182 50 C192 44 206 44 214 48" stroke="#ffd36a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>'''
 
 
 def dragon(p: dict) -> str:
@@ -53,7 +65,7 @@ def dragon(p: dict) -> str:
     <stop offset="0" stop-color="#fff2b0"/><stop offset="1" stop-color="{p["spike"]}"/>
   </linearGradient>
   <radialGradient id="iris" cx="0.35" cy="0.35" r="0.8">
-    <stop offset="0" stop-color="#3f8a4a"/><stop offset="1" stop-color="#123018"/>
+    <stop offset="0" stop-color="{p.get("iris", ("#3f8a4a", "#123018"))[0]}"/><stop offset="1" stop-color="{p.get("iris", ("#3f8a4a", "#123018"))[1]}"/>
   </radialGradient>
   <clipPath id="bellyClip"><path d="M164 150 C192 162 196 212 186 242 C176 264 142 268 128 254 C144 226 148 182 164 150 Z"/></clipPath>
 </defs>
@@ -89,18 +101,20 @@ def dragon(p: dict) -> str:
   <g fill="#fff6e6" stroke="{o}" stroke-width="2"><circle cx="181" cy="275" r="4"/><circle cx="172" cy="278" r="4"/><circle cx="163" cy="278" r="4"/></g>
 </g>
 <g id="wing-front">
-  <path d="M150 128 C150 96 168 72 196 62 C190 76 192 88 200 96 C188 98 182 106 184 118 C172 116 160 122 158 134 Z" fill="url(#membrane)" {s}/>
-  <path d="M152 130 C160 104 176 80 196 62 M154 130 C168 112 182 100 200 96" stroke="{o}" stroke-width="2.5" fill="none" opacity="0.55"/>
+  <path d="M152 134 C148 102 134 74 108 56 C113 72 110 84 98 92 C112 96 119 106 115 118 C127 116 139 122 141 136 Z" fill="url(#membrane)" {s}/>
+  <path d="M150 133 C144 104 130 78 108 56 M148 133 C136 114 120 100 98 92" stroke="{o}" stroke-width="2.5" fill="none" opacity="0.55"/>
 </g>
 <g id="arm">
   <path d="M194 172 C208 174 218 184 215 193 C212 199 204 196 197 190 C192 186 190 178 194 172 Z" fill="url(#skin)" {s}/>
   <g fill="#fff6e6" stroke="{o}" stroke-width="1.5"><circle cx="216" cy="190" r="2.6"/><circle cx="212" cy="196" r="2.6"/></g>
 </g>
 <g id="head">
+{GRAND_HORNS.format(h=p["horn"], s=s) if p.get("grand") else f'''
   <path d="M168 40 C160 22 162 8 170 0 C176 14 182 26 186 36 Z" fill="{p["horn"]}" {s}/>
-  <path d="M196 34 C196 16 204 4 214 0 C214 14 214 26 212 34 Z" fill="{p["horn"]}" {s}/>
+  <path d="M196 34 C196 16 204 4 214 0 C214 14 214 26 212 34 Z" fill="{p["horn"]}" {s}/>'''}
   <path d="M138 76 C144 34 208 18 246 38 C272 52 284 84 270 106 C256 128 214 134 180 128 C152 122 132 102 138 76 Z" fill="url(#skin)" {s}/>
   <path d="M140 70 L124 62 L138 84 Z" fill="url(#spikeFill)" {s}/>
+  {GRAND_HEAD.format(o=o, s=s) if p.get("grand") else ""}
   <ellipse cx="200" cy="46" rx="30" ry="10" fill="#fff" opacity="0.24" transform="rotate(-8 200 46)"/>
   <circle cx="160" cy="62" r="6" fill="{p["spot"]}" opacity="0.45"/><circle cx="152" cy="88" r="5" fill="{p["spot"]}" opacity="0.45"/>
   <ellipse cx="262" cy="70" rx="3.5" ry="2.4" fill="{o}"/><ellipse cx="254" cy="66" rx="3" ry="2" fill="{o}"/>
@@ -432,11 +446,11 @@ RUBY_HAT = f'''
 RUBY_FEATHER = (*_xy(_CL + 4, -70, _CT, 1.0), -34, "#ffd34d")
 
 
-KNIGHT_GEAR = f'''
+KNIGHT_GEAR = f'''<g transform="rotate(24 222 212)">
   <path d="M218 146 L226 146 L226 198 L218 198 Z" fill="#dfe6ec" {T}/>
   <path d="M218 146 L222 132 L226 146 Z" fill="#dfe6ec" {T}/>
   <rect x="206" y="196" width="32" height="8" rx="3" fill="#ffd34d" {T}/>
-  <rect x="217" y="204" width="10" height="18" rx="3" fill="#8a5a32" {T}/>'''
+  <rect x="217" y="204" width="10" height="18" rx="3" fill="#8a5a32" {T}/></g>'''
 KNIGHT_CHEST = f'<path d="M136 176 C150 170 162 170 176 176 L174 210 C162 216 150 216 138 210 Z" fill="#dfe6ec" {T}/><path d="M156 182 L156 206 M146 194 L166 194" stroke="#e23b3b" stroke-width="5" stroke-linecap="round"/>'
 
 WIZARD_GEAR = f'''
@@ -446,9 +460,10 @@ WIZARD_GEAR = f'''
   <circle cx="231" cy="51" r="5" fill="#fff" opacity="0.9"/>'''
 
 RANGER_GEAR = f'''
-  <path d="M206 120 C244 150 244 230 206 260" fill="none" stroke="#8a5a32" stroke-width="7" stroke-linecap="round"/>
-  <path d="M206 120 C244 150 244 230 206 260" fill="none" stroke="{INK}" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-  <path d="M208 122 L208 258" stroke="#f2e6c8" stroke-width="2"/>'''
+  <path d="M226 172 C262 196 262 256 226 280" fill="none" stroke="#8a5a32" stroke-width="7" stroke-linecap="round"/>
+  <path d="M226 172 C262 196 262 256 226 280" fill="none" stroke="{INK}" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M227 174 L227 278" stroke="#f2e6c8" stroke-width="2"/>
+  <path d="M222 172 l-4 -8 l8 2 Z M222 280 l-4 8 l8 -2 Z" fill="#6a4226"/>'''
 
 GUARDIAN_GEAR = f'''
   <ellipse cx="222" cy="214" rx="34" ry="40" fill="#2fa3a3" {S}/>

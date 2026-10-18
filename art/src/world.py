@@ -153,6 +153,14 @@ def scene_world_map():
     # a dark manor on a crooked hill, right below
     d.add(f'<path d="M1650 800 Q1770 700 1880 790 Z" fill="#6b7a50"/>')
     house(d, 1732, 790, 70, 90, "#a8a0b8", "#4a4a6a")
+    # the Bat Belfry: an old bell tower on a rocky hill among the eastern mountains
+    bx, bb = 1824, 248
+    d.add(f'<path d="M{bx - 80} {bb + 20} Q{bx} {bb - 50} {bx + 80} {bb + 20} Z" fill="#8a7f78" stroke="{INK}" stroke-width="3" stroke-opacity="0.5"/>')
+    d.add(f'<rect x="{bx - 18}" y="{bb - 90}" width="36" height="80" fill="#a8a0b8" stroke="{INK}" stroke-width="4"/>')
+    d.add(f'<path d="M{bx - 26} {bb - 88} L{bx} {bb - 128} L{bx + 26} {bb - 88} Z" fill="#4a4a6a" stroke="{INK}" stroke-width="4" stroke-linejoin="round"/>')
+    d.add(f'<path d="M{bx - 9} {bb - 50} v-22 a9 9 0 0 1 18 0 v22 Z" fill="#2a2640"/><path d="M{bx - 6} {bb - 56} q6 -12 12 0 Z" fill="#e8c46a"/>')
+    for k, (vx, vy) in enumerate([(bx - 40, bb - 120), (bx + 36, bb - 132), (bx + 52, bb - 104)]):
+        d.add(f'<path d="M{vx - 10} {vy} q5 -6 10 0 q5 -6 10 0" fill="none" stroke="#3a3046" stroke-width="3" stroke-linecap="round"/>')
     # compass
     cx, cy = 150, 910
     d.add(f'<circle cx="{cx}" cy="{cy}" r="70" fill="#f6ead0" stroke="{INK}" stroke-width="5" opacity="0.92"/>')
@@ -281,8 +289,14 @@ def scene_mossbrook():
     river(d, [(-60, 990), (500, 930), (1000, 960), (1500, 1000), (1990, 980)], 90)
     for x, h, c in [(1000, 110, "#f2dcb6"), (1190, 130, "#efd0a8"), (1380, 100, "#f6e6c4"), (1560, 125, "#f2dcb6"), (1740, 95, "#efd0a8")]:
         house(d, x, 770 + (x % 3) * 10, 110, h, c, r.choice(["#cf6a58", "#7aa04a", "#c4883a"]), lit=False)
-    path_ribbon(d, [(600, 1000), (1000, 860), (1400, 820), (1900, 800)], 80)
-    d.add(f'<path d="M520 960 Q620 880 720 960" fill="none" stroke="#a89a82" stroke-width="30"/>')
+    path_ribbon(d, [(560, 1100), (600, 1000), (1000, 860), (1400, 820), (1900, 800)], 80)
+    # a little wooden footbridge carries the road over the brook
+    d.add(f'<path d="M540 990 Q600 950 660 900 L700 930 Q640 985 580 1030 Z" fill="#b07a46" stroke="{INK}" stroke-width="4" stroke-opacity="0.55"/>')
+    for k in range(1, 6):
+        t = k / 6
+        d.add(f'<path d="M{540 + 120 * t:.0f} {990 - 90 * t:.0f} L{580 + 120 * t:.0f} {1030 - 100 * t:.0f}" stroke="#7a4e2a" stroke-width="3" opacity="0.7"/>')
+    for x0, y0 in [(540, 990), (580, 1030)]:
+        d.add(f'<path d="M{x0} {y0} v-40 M{x0 + 60} {y0 - 50} v-40 M{x0 + 120} {y0 - 90} v-40 M{x0} {y0 - 36} Q{x0 + 60} {y0 - 96} {x0 + 120} {y0 - 126}" fill="none" stroke="#8a5a32" stroke-width="7" stroke-linecap="round"/>')
     frame_trees(d); flowers(d)
     return finish(d)
 
@@ -294,11 +308,18 @@ def scene_old_bridge():
     ground(d, 760)
     river(d, [(-60, 860), (500, 840), (1000, 850), (1500, 840), (1990, 860)], 240)
     # bridge
-    d.add(f'<path d="M560 780 Q960 600 1360 780 L1360 840 L560 840 Z" fill="#b8b2a0" stroke="{INK}" stroke-width="5" stroke-opacity="0.55"/>')
-    d.add(f'<path d="M640 840 Q960 720 1280 840 Z" fill="#6fc3e6"/>')
-    d.add(stone_blocks(r, 560, 650, 1360, 800, 70, 34, "#b8b2a0", "#d2ccba", "#8f8a78", 0.5))
-    for x in range(580, 1360, 90):
-        d.add(f'<ellipse cx="{x}" cy="{720 + abs(x - 960) * 0.2:.0f}" rx="22" ry="12" fill="#6f9a45" opacity="0.7"/>')
+    span = "M560 780 Q960 600 1360 780 L1360 840 L1280 840 Q960 720 640 840 L560 840 Z"
+    d.add(f'<defs><clipPath id="span"><path d="{span}"/></clipPath></defs>')
+    d.add(f'<path d="{span}" fill="#b8b2a0"/>')
+    d.add('<g clip-path="url(#span)">' + stone_blocks(r, 560, 650, 1360, 840, 70, 34, "#b8b2a0", "#d2ccba", "#8f8a78", 0.5) + '</g>')
+    d.add(f'<path d="{span}" fill="none" stroke="{INK}" stroke-width="5" stroke-opacity="0.55"/>')
+    # moss along the top of the arch
+    for x in range(620, 1320, 80):
+        t = (x - 560) / 800
+        y = (1 - t) ** 2 * 780 + 2 * (1 - t) * t * 600 + t * t * 780
+        d.add(f'<ellipse cx="{x}" cy="{y + 4:.0f}" rx="24" ry="10" fill="#6f9a45" opacity="0.8"/>')
+    # its reflection in the water
+    d.add(f'<path d="M640 846 Q960 960 1280 846" fill="none" stroke="#b8b2a0" stroke-width="10" opacity="0.35"/>')
     for x in (600, 1320):
         d.add(f'<rect x="{x}" y="640" width="40" height="150" fill="#a8a290" stroke="{INK}" stroke-width="4" stroke-opacity="0.5"/>')
     d.add(cattails(r, 160, 1000, 6)); d.add(cattails(r, 1760, 1010, 6))
@@ -336,6 +357,9 @@ def scene_hermit_hill():
     ground(d, 900, "#a9cf6c", "#5e9440", 10)
     for x in (200, 440, 640):
         d.add(f'<path d="M{x} 1000 q-6 -90 10 -160" stroke="#5f9a45" stroke-width="5" fill="none"/>')
+        d.add(f'<circle cx="{x + 10}" cy="836" r="22" fill="#ffffff" opacity="0.75" stroke="#d8d8c8" stroke-width="2"/><circle cx="{x + 10}" cy="836" r="5" fill="#c8b880"/>')
+    d.add(f'<path d="M1690 470 l-26 70 M1690 470 l26 70 M1690 470 v74" stroke="#6b4a32" stroke-width="7" stroke-linecap="round"/>')
+    d.add(f'<g transform="rotate(-28 1690 466)"><rect x="1630" y="452" width="120" height="28" rx="8" fill="#c8963a" stroke="{INK}" stroke-width="4"/><rect x="1740" y="446" width="22" height="40" rx="6" fill="#8a5a2a" stroke="{INK}" stroke-width="4"/></g>')
     d.add(tree(d, r, -20, 1000, 1.8)); flowers(d, 20, 900)
     return finish(d)
 
@@ -354,9 +378,17 @@ def scene_pennywhistle():
             d.add(f'<path d="M{x - 10 + k * 32} 640 h32 l-6 54 h-20 Z" fill="{c}" stroke="{INK}" stroke-width="2" stroke-opacity="0.4"/>')
         d.add(f'<rect x="{x + 20}" y="720" width="130" height="60" fill="#8a5a33" stroke="{INK}" stroke-width="3" stroke-opacity="0.5"/>')
         d.add(apple(x + 40, 715) + apple(x + 80, 712, 1.0, "#f2b43a") + apple(x + 120, 715))
-    for k in range(10):
-        d.add(f'<path d="M{760 + k * 120} 520 q50 40 100 0" fill="none" stroke="#6b4a32" stroke-width="3"/>')
-        d.add(f'<path d="M{790 + k * 120} 546 l12 26 l12 -26 Z" fill="{cols[k % 4]}"/>')
+    for x in (900, 1900):
+        d.add(f'<rect x="{x - 9}" y="500" width="18" height="300" rx="6" fill="#8a5a32" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/><circle cx="{x}" cy="498" r="13" fill="#ffd34d" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/>')
+    rope = lambda t: (900 + 1000 * t, 520 + 90 * 4 * t * (1 - t))
+    d.add(f'<path d="M900 520 Q1400 700 1900 520" fill="none" stroke="#6b4a32" stroke-width="4"/>')
+    for k in range(1, 16):
+        fx, fy = rope(k / 16)
+        d.add(f'<path d="M{fx - 15:.0f} {fy - 2:.0f} l15 34 l15 -34 Z" fill="{cols[k % 4]}" stroke="{INK}" stroke-width="2" stroke-opacity="0.4"/>')
+    # Zig's sign (a picture of a wheel and a star) by the road
+    d.add(f'<path d="M640 900 v-150" stroke="#7a4e2a" stroke-width="14" stroke-linecap="round"/><rect x="560" y="700" width="160" height="80" rx="10" fill="#e9d2a8" stroke="{INK}" stroke-width="4" stroke-opacity="0.6"/>')
+    d.add(f'<circle cx="610" cy="740" r="24" fill="none" stroke="#8a5a32" stroke-width="6"/><path d="M610 716 v48 M586 740 h48" stroke="#8a5a32" stroke-width="4"/>')
+    d.add(f'<path d="M674 718 l6 14 l15 1 l-11 10 l4 15 l-14 -8 l-14 8 l4 -15 l-11 -10 l15 -1 Z" fill="#ffd34d" stroke="{INK}" stroke-width="2" stroke-opacity="0.6"/>')
     d.add(barrel(120, 960, 120, 150)); d.add(crate(300, 1000, 120, 100))
     frame_trees(d, left=False)
     return finish(d)
@@ -404,11 +436,21 @@ def scene_lantern_hollow():
     path_ribbon(d, [(-60, 1000), (600, 900), (1200, 840), (1990, 820)], 150, "#d8bd8a", "#a88c5a")
     for x, h in [(1000, 130), (1230, 150), (1480, 120), (1700, 140)]:
         house(d, x, 790, 130, h, r.choice(["#f2dcb6", "#e4cfa6"]), r.choice(["#8a5a9a", "#5a7aa0", "#b46a58"]), lit=True)
-    for i, x in enumerate(range(160, 1900, 150)):
-        y = 330 + 50 * math.sin(i * 0.9)
-        col = r.choice(["#ffd77a", "#ffb08a", "#9fe0ff", "#ffe9a0"])
-        d.add(f'<path d="M{x} 0 V{y - 30}" stroke="#6b4a32" stroke-width="3"/>')
-        d.add(glow(d, x, y, 90, col, 0.45) + f'<path d="M{x - 18} {y} h36 l-6 40 h-24 Z" fill="{col}" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/>')
+    posts = [(300, 800), (1180, 800), (1900, 800)]
+    for x, base in posts:
+        d.add(f'<rect x="{x - 10}" y="300" width="20" height="{base - 300}" rx="6" fill="#6b4a32" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/><circle cx="{x}" cy="298" r="14" fill="#ffd77a" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/>')
+    for (x0, _), (x1, _) in zip(posts, posts[1:]):
+        sag = 150
+        d.add(f'<path d="M{x0} 320 Q{(x0 + x1) / 2} {320 + 2 * sag} {x1} 320" fill="none" stroke="#6b4a32" stroke-width="3"/>')
+        for k in range(1, 6):
+            t = k / 6
+            x, y = x0 + (x1 - x0) * t, 320 + 4 * sag * t * (1 - t)
+            col = r.choice(["#ffd77a", "#ffb08a", "#9fe0ff", "#ffe9a0"])
+            d.add(f'<path d="M{x:.0f} {y:.0f} v14" stroke="#6b4a32" stroke-width="3"/>')
+            d.add(glow(d, x, y + 34, 80, col, 0.45) + f'<path d="M{x - 16:.0f} {y + 14:.0f} h32 l-6 38 h-20 Z" fill="{col}" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/>')
+    # lanterns floating up into the evening sky for the Festival of Lights
+    for x, y in [(520, 170), (760, 110), (1480, 140), (1700, 210)]:
+        d.add(glow(d, x, y, 50, "#ffd77a", 0.4) + f'<path d="M{x - 12} {y - 14} h24 l-4 28 h-16 Z" fill="#ffe2a0" stroke="{INK}" stroke-width="2" stroke-opacity="0.5"/>')
     d.add(tree(d, r, -20, 1000, 1.7, ("#4f6a6a", "#5f8a7a", "#7aa88a")))
     return finish(d, 0.28)
 
@@ -466,11 +508,15 @@ def scene_windy_pass():
     mountain(d, 300, 820, 900, 640, ("#a09ab8", "#6f6890"))
     mountain(d, 1650, 820, 1000, 700, ("#9a94b2", "#68608a"))
     ground(d, 800, "#a8a58a", "#6f7060", 10)
-    path_ribbon(d, [(600, 1060), (900, 900), (960, 800), (960, 700)], 220, "#cdbfa0", "#9a8a68")
+    d.add(f'<path d="M420 1090 C640 980 860 900 930 806 L990 806 C960 900 840 1000 760 1090 Z" fill="#cdbfa0" stroke="#9a8a68" stroke-width="6" stroke-linejoin="round"/>')
+    # a golden scale glinting by the road: the dragon of Dragon's Peak flew over here
+    d.add(glow(d, 1080, 960, 50, "#ffe08a", 0.6) + f'<path d="M1066 948 Q1080 936 1094 948 Q1094 970 1080 980 Q1066 970 1066 948 Z" fill="#ffc23a" stroke="{INK}" stroke-width="3" stroke-opacity="0.6"/>')
     for k in range(12):
         y = 160 + k * 60
         d.add(f'<path d="M{200 + (k * 137) % 1500} {y} q80 -26 160 0 q40 10 80 -6" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.6"/>')
-    d.add(f'<path d="M180 1000 l60 -20 v-60 l-30 -40 l-30 40 Z" fill="#6a5a4a"/>')
+    # a cairn of stones marks the top of the pass
+    for x, y, rx in [(200, 1000, 46), (204, 958, 36), (198, 924, 26), (204, 898, 16)]:
+        d.add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx * 0.55:.0f}" fill="#8f8a9a" stroke="{INK}" stroke-width="3" stroke-opacity="0.45"/>')
     d.add(pine(1800, 1000, 2.2, "#4a6a58", "#385046"))
     return finish(d, 0.3)
 
@@ -506,7 +552,11 @@ def scene_lair_peak():
     path_ribbon(d, [(300, 1070), (800, 950), (1200, 760), (1380, 560), (1420, 420)], 90, "#cdbfa0", "#8a7a5a")
     for x, y in [(170, 960), (1700, 940), (1800, 1020)]:
         d.add(f'<ellipse cx="{x}" cy="{y}" rx="46" ry="26" fill="#8f8a9a" stroke="{INK}" stroke-width="3" stroke-opacity="0.4"/>')
-    d.add(f'<path d="M1100 700 q8 -30 -2 -60 m24 70 q8 -26 0 -50" stroke="#e8e0c8" stroke-width="8" fill="none" stroke-linecap="round"/>')
+    # the dragon's shiny things glitter at the mouth of the cave
+    for x, y, c in [(1376, 404, "#ffd34d"), (1398, 412, "#ffe08a"), (1446, 408, "#ffd34d"), (1466, 400, "#9fe0ff"), (1424, 414, "#ff9fb8")]:
+        d.add(f'<circle cx="{x}" cy="{y}" r="9" fill="{c}" stroke="{INK}" stroke-width="2" stroke-opacity="0.6"/>')
+    for x, y in [(1360, 360), (1490, 370), (1420, 330)]:
+        d.add(sparkle(x, y, 12, "#fff6c2"))
     return finish(d, 0.3)
 
 
@@ -531,12 +581,49 @@ def scene_lair_manor():
     return finish(d, 0.4)
 
 
+def scene_lair_belfry():
+    """The Bat Belfry: an old stone bell tower on a rocky hill at dusk, a big bell in its arch and bats about it."""
+    d = Doc(936); r = d.r
+    sky(d, "dusk", (300, 420))
+    hills(d, 640, "#8a7f9a", "#6a5f7a", 60, 3)
+    # the rocky hill
+    d.add(f'<path d="M820 860 Q980 520 1360 500 Q1720 520 1900 860 Z" fill="{d.lin([(0, "#9a8f88"), (1, "#6a605a")])}" stroke="{INK}" stroke-width="4" stroke-opacity="0.4"/>')
+    for x, y, rx in [(980, 760, 60), (1700, 780, 70), (1240, 700, 40), (1560, 690, 46)]:
+        d.add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx * 0.55:.0f}" fill="#7f746d" stroke="{INK}" stroke-width="3" stroke-opacity="0.35"/>')
+    # the tower: stone blocks clipped to its walls, then the outline on top
+    tx, base, tw = 1360, 610, 260
+    x0, y0 = tx - tw / 2, base - 400
+    d.add(f'<defs><clipPath id="tower"><rect x="{x0}" y="{y0}" width="{tw}" height="400"/></clipPath></defs>')
+    d.add(f'<rect x="{x0}" y="{y0}" width="{tw}" height="400" fill="#a8a0b8"/>')
+    d.add(f'<g clip-path="url(#tower)">' + stone_blocks(r, x0, y0, x0 + tw, base, 65, 40, "#a8a0b8", "#c4bcd2", "#8a829c", 0.6) + '</g>')
+    d.add(f'<rect x="{x0}" y="{y0}" width="{tw}" height="400" fill="none" stroke="{INK}" stroke-width="6"/>')
+    d.add(f'<path d="M{x0 - 30} {y0 + 2} L{tx} {base - 580} L{x0 + tw + 30} {y0 + 2} Z" fill="#4a4a6a" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>')
+    # the bell in its arch
+    d.add(f'<path d="{arch_path(tx - 80, tx + 80, base - 330, base - 190)}" fill="#1a1428" stroke="{INK}" stroke-width="5"/>')
+    d.add(glow(d, tx, base - 250, 120, "#ffe08a", 0.35))
+    d.add(f'<path d="M{tx - 44} {base - 210} C{tx - 40} {base - 270} {tx - 26} {base - 296} {tx} {base - 296} C{tx + 26} {base - 296} {tx + 40} {base - 270} {tx + 44} {base - 210} Z" fill="#e0b040" stroke="{INK}" stroke-width="5"/>')
+    d.add(f'<circle cx="{tx}" cy="{base - 204}" r="10" fill="#c08a20" stroke="{INK}" stroke-width="4"/><path d="M{tx - 26} {base - 270} q8 -14 20 -16" stroke="#fff6c2" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>')
+    # door and a lantern by it
+    d.add(f'<path d="M{tx - 40} {base} v-90 a40 40 0 0 1 80 0 v90 Z" fill="#2a1e20" stroke="{INK}" stroke-width="5"/>')
+    d.add(glow(d, tx + 80, base - 70, 70, "#ffd36a", 0.45) + f'<path d="M{tx + 66} {base - 80} h28 l-5 32 h-18 Z" fill="#ffd77a" stroke="{INK}" stroke-width="3"/>')
+    # bats circling the roof
+    for k in range(9):
+        a = k / 9 * math.tau
+        bx, by = tx + 300 * math.cos(a), 220 + 70 * math.sin(a)
+        s = r.uniform(0.7, 1.2)
+        d.add(f'<path d="M{bx - 22 * s:.0f} {by:.0f} q{11 * s:.0f} -14 {22 * s:.0f} 0 q{11 * s:.0f} -14 {22 * s:.0f} 0 q-{11 * s:.0f} 4 -{22 * s:.0f} 10 q-{11 * s:.0f} -6 -{22 * s:.0f} -10 Z" fill="#3a3046" stroke="{INK}" stroke-width="2"/>')
+    ground(d, 860, "#8a8a6a", "#56584a", 14)
+    path_ribbon(d, [(300, 1070), (700, 980), (1100, 900), (1320, 860)], 110, "#cdbfa0", "#8a7a5a")
+    d.add(pine(120, 1010, 2.1, "#4a6a58", "#385046"))
+    return finish(d, 0.32)
+
+
 def scenes() -> dict:
     out = {"scene_world_map": scene_world_map()}
     for k in ("road", "forest", "mountain", "river", "swamp"):
         out[f"scene_road_{k}"] = scene_road(k)
     for n in ("meadow fairy_ring mossbrook old_bridge sunken_crypt hermit_hill pennywhistle gloomwood_mine "
               "spider_caves lantern_hollow whispering_falls fishers_dock windy_pass inkwell_cellars "
-              "lair_peak lair_manor").split():
+              "lair_peak lair_manor lair_belfry").split():
         out[f"scene_{n}"] = globals()[f"scene_{n}"]()
     return out

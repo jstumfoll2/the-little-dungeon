@@ -49,13 +49,15 @@ class Journey(
     startSkills: SkillBook,
     startWorld: WorldMemory,
     internal val clock: Clock = Clock.System,
+    /** Plays this story instead of the one [ArcPicker] would choose (for tests and tools). The pick is still made, so the seed's dice roll the same. */
+    storyId: String? = null,
 ) {
     internal val random = Random(seed)
     internal val say = JourneyLines(Random(random.nextLong()))
     internal val rooms = RoomLines(Random(random.nextLong()))
 
     val kingdom: Kingdom = Content.kingdom
-    val arc: Arc = ArcPicker.pick(startWorld, random)
+    val arc: Arc = ArcPicker.pick(startWorld, random).let { picked -> storyId?.let { Content.arc(it) } ?: picked }
     val variant: Variant = arc.variants.random(random)
 
     var hero: Hero = startHero
@@ -311,7 +313,13 @@ class Journey(
         // Before each adventure: which chapter of the Storybook this is, and how many pages are home.
         steps += tell(s, say.chapter(chapter, arc.title))
         if (world.adventures > 0 && world.pages > 0) steps += tell(s, say.pagesLine(world.pages))
-        (if ((world.arcsDone[arc.id] ?: 0) > 0 && arc.returnSetup.isNotEmpty()) arc.returnSetup else arc.setup).forEach { steps += tell(s, it) }
+        // Professor Hoot tells the setup: once he starts talking he stands in the scene, so a named speaker is always seen.
+        val withHoot = Content.npc("professor_hoot")?.let { s.copy(npc = view(it)) } ?: s
+        var hootHere = false
+        (if ((world.arcsDone[arc.id] ?: 0) > 0 && arc.returnSetup.isNotEmpty()) arc.returnSetup else arc.setup).forEach {
+            if ("<elder>" in it) hootHere = true
+            steps += tell(if (hootHere) withHoot else s, it)
+        }
         steps += tell(JourneyStory.mapScene(this), JourneyStory.toTheMap(this, chapter))
         return steps
     }

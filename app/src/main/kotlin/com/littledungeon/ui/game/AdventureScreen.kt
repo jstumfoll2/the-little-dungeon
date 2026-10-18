@@ -121,7 +121,14 @@ fun AdventureScreen(vm: GameViewModel) {
         val h = maxHeight
         AnimatedContent(beat.scene.place, transitionSpec = { fadeIn(tween(600)) togetherWith fadeOut(tween(600)) }, label = "place") { place ->
             // The map of the kingdom is drawn by the travel screen itself, over the sea.
-            if (place == Place.WORLD_MAP) Box(Modifier.fillMaxSize().background(Color(0xFF5FA5CC))) else Backdrop(place)
+            if (place == Place.WORLD_MAP) {
+                Box(Modifier.fillMaxSize().background(Color(0xFF5FA5CC))) {
+                    // While the story talks about the kingdom, its map is already on screen (playtest: it only appeared at the choice).
+                    if (beat !is Beat.Travel) KingdomPainting(w, h)
+                }
+            } else {
+                Backdrop(place)
+            }
         }
         if (beat.scene.place != Place.WORLD_MAP) {
             Cast(beat, interactive, speakingAs, heroMood, back, vm, w, h)

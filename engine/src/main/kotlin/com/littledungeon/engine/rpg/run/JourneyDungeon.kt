@@ -195,6 +195,8 @@ private fun Journey.ending(l: Location, fought: Boolean, friend: Boolean = false
         flags = if (fought) world.flags + "rival:${boss.id}" else world.flags - "rival:${boss.id}" + "friend:${boss.id}",
     )
     gain(Attribute.COURAGE, 20)
+    // The key has done its job: it goes back with the story, so the next telling has to find it again.
+    hero = hero.take(arc.keyItemId)
     lastEnding = id
     finishing = true
     val said = when {

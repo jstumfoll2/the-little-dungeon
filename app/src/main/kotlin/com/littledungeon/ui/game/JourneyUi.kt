@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -69,6 +70,25 @@ private class MapBox(val left: Dp, val top: Dp, val width: Dp, val height: Dp) {
     fun y(f: Float): Dp = top + height * f
 }
 
+private fun mapBox(w: Dp, h: Dp): MapBox {
+    val areaW = w * 0.94f
+    val areaH = h * 0.76f
+    val mapW = minOf(areaW, areaH * (16f / 9f) * 1.25f)
+    return MapBox(w * 0.03f + (areaW - mapW) / 2f, h * 0.2f, mapW, areaH)
+}
+
+/** The painted map of the kingdom, where the travel screen puts it. Story scenes "at the map" show it too, so it is there as soon as it is talked about. */
+@Composable
+fun KingdomPainting(w: Dp, h: Dp) {
+    val box = mapBox(w, h)
+    Image(
+        painterResource(Art.place(com.littledungeon.engine.rpg.run.Place.WORLD_MAP)), null,
+        Modifier.at(box.x(0.5f), box.y(0.5f), box.width, box.height).shadow(8.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp))
+            .border(4.dp, Palette.PaperEdge, RoundedCornerShape(24.dp)),
+        contentScale = ContentScale.FillBounds,
+    )
+}
+
 private fun kindColor(kind: LocationKind): Color = when (kind) {
     LocationKind.CAMP -> Color(0xFF4F8FD9)
     LocationKind.TOWN -> Color(0xFFFFC21F)
@@ -103,16 +123,8 @@ fun TravelBeat(beat: Beat.Travel, journey: Journey, say: (List<Speech>) -> Unit,
         val h = maxHeight
         // The painting is 16:9. It is no longer stretched to fill a long phone: at most a quarter wider than drawn, centred, with the
         // sea around it. (Places are sized to be read, so a map shown at its true shape needs the places moved: roadmap 4.4.)
-        val areaW = w * 0.94f
-        val areaH = h * 0.76f
-        val mapW = minOf(areaW, areaH * (16f / 9f) * 1.25f)
-        val box = MapBox(w * 0.03f + (areaW - mapW) / 2f, h * 0.2f, mapW, areaH)
-        Image(
-            painterResource(Art.place(com.littledungeon.engine.rpg.run.Place.WORLD_MAP)), null,
-            Modifier.at(box.x(0.5f), box.y(0.5f), box.width, box.height).shadow(8.dp, RoundedCornerShape(24.dp)).clip(RoundedCornerShape(24.dp))
-                .border(4.dp, Palette.PaperEdge, RoundedCornerShape(24.dp)),
-            contentScale = ContentScale.FillBounds,
-        )
+        val box = mapBox(w, h)
+        KingdomPainting(w, h)
         // Every road, faint; the ones out of here, bold.
         Canvas(Modifier.fillMaxSize()) {
             kingdom.roads.forEach { r ->
@@ -164,8 +176,8 @@ fun TravelBeat(beat: Beat.Travel, journey: Journey, say: (List<Speech>) -> Unit,
             )
             Text(
                 here.name, color = Palette.Ink, fontWeight = FontWeight.Black, fontSize = with(LocalDensity.current) { (size * 0.3f).toSp() },
-                modifier = Modifier.align(Alignment.BottomCenter).background(Palette.Paper, RoundedCornerShape(50)).padding(horizontal = 8.dp),
-                maxLines = 1,
+                modifier = Modifier.align(Alignment.BottomCenter).wrapContentWidth(unbounded = true).background(Palette.Paper, RoundedCornerShape(50)).padding(horizontal = 8.dp),
+                maxLines = 1, softWrap = false,
             )
         }
         if (ready && selected >= 0) {
@@ -186,7 +198,9 @@ private fun Marker(name: String, color: Color, dot: Dp, modifier: Modifier, fade
         )
         Text(
             name, color = Palette.Ink, fontWeight = FontWeight.Bold, fontSize = with(LocalDensity.current) { (dot * 0.34f).toSp() },
-            modifier = Modifier.padding(top = 2.dp).background(Color(0xCCFFF6E0), RoundedCornerShape(50)).padding(horizontal = 6.dp), maxLines = 1,
+            // The name may be wider than the place's box ("Sleepy Meadow"): let it spill over both sides instead of being cut.
+            modifier = Modifier.wrapContentWidth(unbounded = true).padding(top = 2.dp).background(Color(0xCCFFF6E0), RoundedCornerShape(50)).padding(horizontal = 6.dp),
+            maxLines = 1, softWrap = false,
         )
         if (ticks > 0) {
             Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.padding(top = 2.dp)) {
