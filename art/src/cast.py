@@ -214,6 +214,7 @@ PEOPLE = {
     "hazel_hermit": dict(skin="fair", robe="#8a7a5a", trim="#c9b27a", hair="#cfcfd6", hairstyle="wild", beard="#cfcfd6", prop="staff", build="slim"),
     "old_merlo": dict(skin="fair", robe="#6a4fc2", trim="#ffd34d", hair="#f2f2f8", hairstyle="short", beard="#f2f2f8", hat="wizard", hatcolor="#7a3fc4", glasses="#c98a12", prop="staff", build="tall"),
     "bandit_bess": dict(skin="tan", robe="#5a3a4a", trim="#e23b3b", hair="#5a3320", hairstyle="long", hat="bandana", hatcolor="#e23b3b", build="slim"),
+    "wren_girl": dict(skin="brown", robe="#5a9ad6", trim="#ffffff", hair="#2a1c10", hairstyle="curly", hat="cap", hatcolor="#e2753a", cheeks=True, build="slim"),
     "lumi_lamp": dict(skin="rosy", robe="#ffb347", trim="#fff3a0", hair="#f0c84a", hairstyle="curly", prop="lantern", build="slim"),
 
     "mayor_tilly": dict(skin="tan", robe="#4f9d6a", trim="#ffd34d", hair="#d8d8e0", hairstyle="bun", glasses="#7a4a26", build="round", hat="flowers", hatcolor="#ff8fb0"),

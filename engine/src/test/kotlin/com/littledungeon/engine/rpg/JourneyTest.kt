@@ -24,6 +24,7 @@ import com.littledungeon.engine.util.Clock
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -146,7 +147,11 @@ class JourneyTest {
             .filterIsInstance<Effect.Give>().map { it.itemId }.toSet()
         val sold = Content.shops.flatMap { it.stock }.toSet()
         val dropped = Content.monsters.flatMap { it.drops }.map { it.itemId }.toSet()
-        for (a in Content.arcs) assertTrue(a.keyItemId in given + sold + dropped, "${a.keyItemId} can never be found")
+        // The key a story needs is also always handed over when its dungeon is finished.
+        for (a in Content.arcs) {
+            val keyDungeon = Content.kingdom.locationOrNull(a.keyDungeonId)
+            assertTrue(a.keyItemId in given + sold + dropped || keyDungeon?.guardian != null, "${a.keyItemId} can never be found")
+        }
         assertTrue("ink_cleaner" in given && "recipe_page" in given && "magic_beans" in given)
     }
 
@@ -181,7 +186,8 @@ class JourneyTest {
             assertEquals(1, j.world.pages, "a page comes home")
             assertEquals(1, j.world.adventures)
             assertTrue(j.records.size >= 3, "some learning happened: ${j.records.size}")
-            assertTrue(j.hero.has(j.arc.keyItemId), "the key was found before the lair")
+            assertTrue("run:gate" in j.runFlags, "the key was found and opened the lair")
+            assertFalse(j.hero.has(j.arc.keyItemId), "and it goes back with the story, so the next telling must find it again")
             assertTrue(beats.any { it is Beat.Travel } && beats.any { it is Beat.Ask })
             assertTrue(j.visited.contains(j.arc.lairId) && j.visited.contains(j.arc.keyDungeonId))
         }

@@ -33,8 +33,8 @@ class StoryMemoryTest {
     private fun said(b: Beat) = (b as? Beat.Tell)?.let { Voice.caption(it.lines) }.orEmpty()
 
     /** Plays a whole journey; at the lair, makes peace or fights as asked. */
-    private fun play(world: WorldMemory, peace: Boolean, seed: Long = 5): Pair<Journey, List<Beat>> {
-        val j = Journey(seed, strong, SkillBook(), world, Clock { 0L })
+    private fun play(world: WorldMemory, peace: Boolean, seed: Long = 5, story: String = "missing_pages"): Pair<Journey, List<Beat>> {
+        val j = Journey(seed, strong, SkillBook(), world, Clock { 0L }, storyId = story)
         val r = Random(seed)
         val seen = mutableListOf<Beat>()
         var guard = 0
@@ -194,6 +194,52 @@ class StoryMemoryTest {
         fun byEngine(f: String) = listOf("met:", "friend:", "rival:").any { f.startsWith(it) }
         for (f in set) assertTrue(f in read || byEngine(f), "$f is set but nothing ever reads it")
         for (f in read) assertTrue(f in set || byEngine(f), "$f is read but nothing ever sets it")
+    }
+
+    @Test
+    fun `every story can end in a fight or in peace, and is remembered`() {
+        for (arc in Content.arcs) for (peace in listOf(true, false)) {
+            val world = WorldMemory(adventures = 1, pages = 1, arcsDone = mapOf("missing_pages" to 1), lastArc = "missing_pages")
+            val (j, beats) = play(world, peace, seed = 3, story = arc.id)
+            val boss = arc.bossId
+            assertTrue(beats.any { arc.gateOpens in said(it) }, "${arc.id}: the way into the lair opens")
+            assertEquals(2, j.world.pages, "${arc.id}: a page comes home")
+            assertEquals((world.arcsDone[arc.id] ?: 0) + 1, j.world.arcsDone[arc.id], arc.id)
+            assertTrue(j.world.endings.any { it.startsWith(arc.id) && it.endsWith(if (peace) "peace" else "fight") }, "${arc.id}: the ending is kept")
+            assertTrue((if (peace) "friend:$boss" else "rival:$boss") in j.world.flags, "${arc.id}: the boss remembers")
+        }
+    }
+
+    @Test
+    fun `a story that has been played comes back shorter, and the next story is a different one`() {
+        val after = WorldMemory(adventures = 1, pages = 1, arcsDone = mapOf("missing_pages" to 1), lastArc = "missing_pages")
+        val next = (1L..40L).map { Journey(it, strong, SkillBook(), after, Clock { 0L }).arc.id }.toSet()
+        assertTrue("missing_pages" !in next, "the story just played is not told again straight away")
+        assertEquals(setOf("dragon_peak", "thousand_lanterns"), next, "both new stories come up")
+    }
+
+    @Test
+    fun `believing Wren about the dragon spares a puzzle`() {
+        fun asks(flags: Set<String>): Int {
+            val j = Journey(1, strong.give("cloud_whistle"), SkillBook(), WorldMemory(adventures = 1, pages = 1, flags = flags), Clock { 0L }, storyId = "dragon_peak")
+            j.load(j.lairArrival(Content.kingdom.location(j.arc.lairId)))
+            var n = 0
+            var guard = 0
+            while (!j.finished && guard++ < 200) {
+                val b = j.beat
+                if (b is Beat.Ask) n++
+                j.reply(
+                    when (b) {
+                        is Beat.Choose -> Reply.Picked(b.options.indexOfFirst { it.icon == "hub_peace" })
+                        is Beat.Ask -> Reply.Solved(1, 0, 0)
+                        else -> Reply.Next
+                    },
+                )
+            }
+            return n
+        }
+        assertEquals(3, asks(emptySet()))
+        assertEquals(2, asks(setOf("knows_dragon_kind")), "the dragon sees the hero already knows it is kind")
     }
 
     @Test

@@ -182,6 +182,40 @@ def ink_cleaner():
     ))
 
 
+def cloud_whistle():
+    """A round silver whistle with a little dragon face on its chamber, blowing a puff of cloud and a note."""
+    return icon(rg("g", [(0, "#ffffff"), (0.5, "#d8dee8"), (1, "#8f9bb0")], cx=0.38, cy=0.3, r=0.85), (
+        '<circle cx="78" cy="92" r="56" fill="#cfe8ff" opacity="0.3"/>'
+        f'<path d="M30 60 C40 40 70 40 74 56" fill="none" {S("#c7354a", 5)}/>'
+        # mouthpiece, then the round chamber
+        f'<path d="M86 70 L136 58 L140 82 L98 96 Z" fill="url(#g)" {S("#5a6580")}/>'
+        f'<circle cx="74" cy="100" r="40" fill="url(#g)" {S("#5a6580")}/>'
+        # little dragon horns, eyes and smile on the chamber
+        f'<path d="M52 66 L46 50 L62 62 M86 62 L94 48 L96 66" fill="#e8ecf2" {S("#5a6580", 3.5)}/>'
+        '<circle cx="62" cy="96" r="5" fill="#2a2440"/><circle cx="86" cy="96" r="5" fill="#2a2440"/>'
+        '<circle cx="64" cy="94" r="1.8" fill="#fff"/><circle cx="88" cy="94" r="1.8" fill="#fff"/>'
+        f'<path d="M64 112 C70 118 80 118 86 112" fill="none" {S("#5a6580", 3.5)}/>'
+        '<path d="M50 84 C54 76 60 72 66 70" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>'
+        # the cloud it blows away
+        + f'<path d="M110 28 C104 16 120 8 128 18 C134 6 152 12 148 26 C158 28 156 42 144 40 L118 40 C106 40 104 30 110 28 Z" fill="#ffffff" {S("#9aa6ba", 3)}/>'
+        + f'<path d="M124 108 l0 -20 l14 -4 l0 20" fill="none" {S("#5a7ad6", 3.5)}/><circle cx="121" cy="109" r="5" fill="#5a7ad6"/><circle cx="135" cy="105" r="5" fill="#5a7ad6"/>'
+        + sparkle(30, 120, 8) + sparkle(28, 86, 6)
+    ))
+
+
+def starlight_jar():
+    """A glass jar with a cork, full of tiny twinkling stars."""
+    stars = [(64, 92, 6), (90, 80, 7), (78, 112, 5), (100, 108, 6), (70, 70, 4), (96, 126, 4), (60, 124, 4)]
+    return icon(rg("l", [(0, "#ffffff"), (0.45, "#dfe8ff"), (1, "#8fa4e8")], cx=0.5, cy=0.55, r=0.6) + G("k", "#c99a5a"), (
+        '<circle cx="80" cy="96" r="60" fill="#dfe8ff" opacity="0.45"/>'
+        f'<path d="M58 48 L58 60 C36 70 34 120 46 136 C58 146 102 146 114 136 C126 120 124 70 102 60 L102 48 Z" fill="url(#l)" fill-opacity="0.92" {S("#4a5a8a")}/>'
+        f'<rect x="54" y="30" width="52" height="22" rx="6" fill="url(#k)" {S()}/><path d="M60 40 L100 40" stroke="#8a5a2a" stroke-width="3" opacity="0.6"/>'
+        + "".join(star(x, y, r, r * 0.45, attrs=f'fill="#fff6b0" {S("#d8a820", 2)}') for x, y, r in stars)
+        + '<path d="M50 80 C48 96 50 112 56 126" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>'
+        + sparkle(130, 54, 10, "#fff6b0") + sparkle(30, 90, 8, "#fff6b0") + sparkle(124, 128, 7, "#fff6b0")
+    ))
+
+
 def recipe_page():
     return icon(G("p", "#fff3d6"), (
         f'<path d="M40 40 L112 36 L120 120 L48 126 Z" fill="url(#p)" {S()}/>'
@@ -205,7 +239,8 @@ ITEMS = {
     "smoke_pearl": smoke_pearl, "friendship_cookie": friendship_cookie, "bubble_shield": bubble_shield, "rope": rope,
     "lantern": lantern, "rusty_key": rusty_key, "silver_key": silver_key, "lucky_clover": lucky_clover,
     "owl_feather": owl_feather, "hint_scroll": hint_scroll, "storybook_page": storybook_page, "silver_quill": silver_quill,
-    "ink_cleaner": ink_cleaner, "recipe_page": recipe_page, "magic_beans": magic_beans,
+    "ink_cleaner": ink_cleaner, "recipe_page": recipe_page,
+    "cloud_whistle": cloud_whistle, "starlight_jar": starlight_jar, "magic_beans": magic_beans,
 }
 
 

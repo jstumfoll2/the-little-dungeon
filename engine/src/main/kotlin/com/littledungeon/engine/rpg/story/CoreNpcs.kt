@@ -62,7 +62,7 @@ object CoreNpcs {
         "mayor_tilly", "Mayor Tilly", "Mayor of Mossbrook", Who.TOWNSWOMAN,
         "Tilly has been mayor of Mossbrook for forty years. She knows everyone's name and everyone's troubles, and she worries most about the baker, who has not smiled since the sticky bun recipe went missing.",
         "Oh, hello, dear! I am Tilly, the mayor of Mossbrook. Every traveler is welcome here.",
-        listOf(Start("thanks", Flag("bun_recipe_returned"), NoFlag("tilly_thanked")), Start("hub")),
+        listOf(Start("thanks", Flag("bun_recipe_returned"), NoFlag("tilly_thanked")), Start("bell", Flag("friend:big_dragon")), Start("hub")),
         listOf(
             n(
                 "hub", "How can I help you, dear?",
@@ -77,6 +77,10 @@ object CoreNpcs {
             n(
                 "help", "Baker Bun lost her sticky bun recipe page, and it broke her heart. She thinks a fox took it at Pennywhistle Market. If you could find it, I would be so grateful.",
                 listOf(o("I will find it", "talk_yes", "hub", listOf(SetFlag("quest_recipe")))),
+            ),
+            n(
+                "bell", "Did you hear? The dragon brought my golden bell back all by itself, and now it rings the bell for us every morning! Thank you, dear. How can I help you?",
+                listOf(o("Ask about Mossbrook", "talk_ask", "town"), bye()),
             ),
             n("news", "Bun has her recipe back? Wonderful, wonderful! You have made a whole village happy.", listOf(o("You are welcome", "talk_yes", "thanks"))),
             n(
@@ -171,7 +175,7 @@ object CoreNpcs {
         "smith_brogan", "Brogan the Smith", "Blacksmith of Pennywhistle", Who.TOWNSMAN,
         "Brogan was a knight until a dragon scare made him hang up his sword and open a smithy. He still makes the best armor in the kingdom, and he still wonders if he was brave enough.",
         "Welcome to my forge! I am Brogan. If it is made of metal, I can make it better.",
-        listOf(Start("hub")),
+        listOf(Start("brave_hub", Flag("brogan_brave")), Start("hub")),
         listOf(
             n(
                 "hub", "What do you need?",
@@ -182,7 +186,24 @@ object CoreNpcs {
                     bye(),
                 ),
             ),
-            n("dragon", "I was a knight when the dragon came down from the peak. I did not fight it. I ran. Do you think that makes me a coward? <narrator>{name} shakes its head. <pet>Running is smart sometimes!", listOf(o("You are not a coward", "talk_yes", "hub", listOf(Relation("smith_brogan", 1))))),
+            n("dragon", "I was a knight when the dragon came down from the peak. I did not fight it. I ran. Do you think that makes me a coward? <narrator>{name} shakes its head. <pet>Running is smart sometimes!",
+                listOf(
+                    o("You are not a coward", "talk_yes", "hub", listOf(Relation("smith_brogan", 1))),
+                    o("The dragon is kind", "talk_give", "brave", needs = listOf(ArcIs("dragon_peak"), Flag("knows_dragon_kind"), NoFlag("brogan_brave"))),
+                ),
+            ),
+            n(
+                "brave", "The dragon is kind? Then all these years, I was running from somebody who only wanted a friend. <narrator>Brogan stands up very tall. <townsman>Then I will be brave now. Take this cookie to the dragon, and tell it that Brogan says sorry.",
+                listOf(bye()), listOf(SetFlag("brogan_brave"), Give("friendship_cookie"), Relation("smith_brogan", 2), Stars(Attribute.COURAGE, 5)),
+            ),
+            n(
+                "brave_hub", "Brave Brogan, at your service! I am not scared of dragons anymore, not one bit. I am making the dragon a brand new spoon. What do you need?",
+                listOf(
+                    o("Look at his wares", "talk_buy", null, listOf(Shop("smithy"))),
+                    o("Prove your skill", "talk_puzzle", null, listOf(Puzzle("LOCK", "proof", "proof_fail", Skill.NUMBERS, "Brogan hammers a number into a bar of iron.")), needs = listOf(NoFlag("brogan_helm"), NoFlag("run:brogan_tried"))),
+                    bye(),
+                ),
+            ),
             n("proof", "Sharp mind, steady hand. You have earned something. This helmet was meant for a knight, and I think you are one.", listOf(bye()), listOf(Give("iron_helm"), SetFlag("brogan_helm"), Relation("smith_brogan", 2))),
             n("proof_fail", "Not quite. Come back with a clearer head, and we will try again.", listOf(bye()), listOf(SetFlag("run:brogan_tried"))),
         ),
@@ -240,7 +261,7 @@ object CoreNpcs {
         "lumi_lamp", "Lumi", "Lantern-keeper of Lantern Hollow", Who.CHILD,
         "Lumi lights every lantern in Lantern Hollow at dusk, all thousand of them, all by herself. She dreams of lighting the whole kingdom, and she is a little scared of the dark herself.",
         "Hello! I am Lumi. I keep the lanterns. All of them. It takes a while.",
-        listOf(Start("hub")),
+        listOf(Start("bats", Flag("friend:bat_king")), Start("festival", ArcIs("thousand_lanterns")), Start("hub")),
         listOf(
             n(
                 "hub", "Would you like something to light your way?",
@@ -252,6 +273,18 @@ object CoreNpcs {
                 ),
             ),
             n("lanterns", "Every dusk I climb every ladder in town. The bats keep stealing the little ones, so the Bat King must have a very bright cave. Do not tell the bats I am scared of the dark.", listOf(o("Your secret is safe", "talk_yes", "hub"))),
+            n(
+                "festival", "The Festival of Lights is tonight, but the bats took nearly every lantern! I am not cross with them. I think they are scared of the dark, like me. Please bring the lanterns home.",
+                listOf(
+                    o("Look at the lamps", "talk_buy", null, listOf(Shop("lampwright"))),
+                    o("Be her friend", "talk_give", "gift", listOf(SetFlag("lumi_gift"), Relation("lumi_lamp", 2)), needs = listOf(Stat(Attribute.KINDNESS, 2), NoFlag("lumi_gift"))),
+                    bye(),
+                ),
+            ),
+            n(
+                "bats", "The bats help me light the lanterns now! It only takes half as long, and I am not scared of the dark anymore, not even a little. Would you like something to light your way?",
+                listOf(o("Look at the lamps", "talk_buy", null, listOf(Shop("lampwright"))), bye()),
+            ),
             n("gift", "You do not think I am silly? Then here, take my best lantern. Now you will never be in the dark alone, and I will not be either.", listOf(o("Thank you, Lumi", "talk_yes", "hub")), listOf(Give("lantern"))),
         ),
         shop = "lampwright",
@@ -474,5 +507,55 @@ object CoreNpcs {
         ),
     )
 
-    val all = listOf(hoot, tilly, bun, willow, hazel, brogan, zig, fox, lumi, hob, merlo, finn, ribbit, grumble, bess, fern, henrietta, otto)
+    val wren = Npc(
+        "wren_girl", "Wren", "Girl of Pennywhistle", Who.CHILD,
+        "When Wren was very little, she got lost in the snow on the mountain, and something big and warm kept her safe all night. Everybody says she dreamed it. Wren knows it was the dragon, and she wishes just one person would believe her.",
+        "Hi! I am Wren. Do you want to hear a secret? Nobody ever believes it.",
+        listOf(Start("friend", Flag("friend:big_dragon")), Start("believed", Flag("wren_believed")), Start("hub")),
+        listOf(
+            n("hub", "Do you want to hear my secret?", listOf(o("Hear her secret", "talk_listen", "secret"), bye())),
+            n(
+                "secret", "When I was little, I got lost on the mountain in the snow. A big warm dragon curled around me all night, and in the morning I was home. Everybody says I dreamed it. Do you believe me?",
+                listOf(
+                    o("I believe you", "talk_yes", "believe", listOf(SetFlag("wren_believed"), SetFlag("knows_dragon_kind"), Relation("wren_girl", 2))),
+                    o("It sounds like a dream", "talk_think", "dream"),
+                ),
+            ),
+            n("believe", "You do? Nobody ever believed me before! Here, take my cookie. If you ever meet the dragon, share it. I just know dragons love cookies.", listOf(bye()), listOf(Give("friendship_cookie"))),
+            n("dream", "Maybe. But I still think it was real. One day you will see.", listOf(bye())),
+            n("believed", "You believed me! If you see the dragon, please say hello from Wren.", listOf(bye())),
+            n("friend", "You made friends with the dragon! I knew it was kind. It flew past my window this morning, and it waved at me!", listOf(bye("Wave goodbye"))),
+        ),
+    )
+
+    val pip = Npc(
+        "pip_bat", "Pip", "The littlest bat", Who.CRITTER,
+        "Pip is the littlest bat in the Bat King's belfry. Pip is so scared of the dark that it flew all the way to Lantern Hollow, and now it hides under the roofs, where the lights are.",
+        "Eek! Oh. Hello. I am Pip. Please do not tell the Bat King I am here.",
+        listOf(Start("friend", Flag("friend:bat_king")), Start("thanks", Flag("pip_lit")), Start("hub")),
+        listOf(
+            n(
+                "hub", "Is it getting dark? I do not like the dark.",
+                listOf(
+                    o("Ask why Pip is here", "talk_ask", "why"),
+                    o("Share your lantern", "talk_give", "lit", listOf(Take("lantern")), needs = listOf(HasItem("lantern"), NoFlag("pip_lit"))),
+                    o("Sing Pip a song", "talk_sing", "song", listOf(SetFlag("run:pip_song"), Stars(Attribute.KINDNESS, 5)), needs = listOf(NoFlag("run:pip_song"))),
+                    bye(),
+                ),
+            ),
+            n(
+                "why", "All the bats are scared of the dark. Even the Bat King, but he would never say so. That is why the bats keep borrowing lanterns.",
+                listOf(o("Thank you, Pip", "talk_yes", "hub")), listOf(SetFlag("knows_bats_scared")),
+            ),
+            n(
+                "lit", "For me? My very own light! <narrator>Pip hugs the lantern with both wings. <critter>I am not scared anymore. Here, I found this feather. You can have it.",
+                listOf(bye()), listOf(SetFlag("pip_lit"), SetFlag("knows_bats_scared"), Give("owl_feather"), Relation("pip_bat", 3)),
+            ),
+            n("song", "La, la, la. That was nice. I feel a little bit braver now.", listOf(o("You are brave", "talk_yes", "hub"))),
+            n("thanks", "My lantern still glows every night. Thank you, my friend!", listOf(bye("Wave goodbye"))),
+            n("friend", "You made friends with the Bat King! Now every bat has a light of its own, and I can go home to the belfry.", listOf(bye("Wave goodbye"))),
+        ),
+    )
+
+    val all = listOf(hoot, tilly, bun, willow, hazel, brogan, zig, fox, lumi, hob, merlo, finn, ribbit, grumble, bess, fern, henrietta, otto, wren, pip)
 }

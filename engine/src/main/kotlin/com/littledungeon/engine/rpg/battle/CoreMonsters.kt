@@ -149,13 +149,6 @@ object CoreMonsters {
             coins = 12..18, drops = listOf(Drop("owl_feather", 50)), weakness = "lantern",
         ),
         Monster(
-            "bat_king", "The Bat King", Tier.MINI_BOSS, 42, 7, listOf(COLORS, COUNTING, NUMBERS), Who.CRITTER,
-            "A giant bat unfolds from the ceiling, wearing a tiny crown. <critter>I am the Bat King! All the lanterns in the kingdom belong to me!",
-            "The Bat King's crown slips down over his eyes. <critter>Oh dear. Maybe I should share.",
-            "The Bat King swoops, and the whole cave goes upside down.",
-            coins = 12..18, drops = listOf(Drop("lantern", 60)), weakness = "lantern",
-        ),
-        Monster(
             "inky_imp", "Inky Imp", Tier.MINI_BOSS, 40, 6, listOf(LETTERS, PATTERNS, COLORS), Who.SNEAK,
             "A little imp covered in ink hops onto a desk. <sneak>Hee hee! The Baron said to guard the quill, and I always do what the Baron says. Mostly.",
             "The Inky Imp drops the quill with a splash. <sneak>Fine, take it! I never liked guarding things anyway.",
@@ -165,6 +158,13 @@ object CoreMonsters {
     )
 
     val bosses = listOf(
+        Monster(
+            "bat_king", "The Bat King", Tier.BOSS, 60, 8, listOf(COLORS, COUNTING, NUMBERS, PATTERNS), Who.CRITTER,
+            "A giant bat unfolds from the rafters, wearing a tiny crown. <critter>I am the Bat King! All the lanterns in the kingdom belong to me!",
+            "The Bat King's crown slips down over his eyes. <critter>Oh dear. Maybe I should share.",
+            "The Bat King swoops, and the whole belfry goes upside down.",
+            coins = 20..30, drops = listOf(Drop("storybook_page", 100), Drop("lantern", 60)), weakness = "lantern",
+        ),
         Monster(
             "baron_grumblewick", "Baron Grumblewick", Tier.BOSS, 75, 9, listOf(LETTERS, NUMBERS, ADDITION, PATTERNS, COLORS), Who.BARON,
             "Baron Grumblewick lowers his top hat and sneers. <baron>The pages are mine, and so is every story. Nobody tells it better than I do.",

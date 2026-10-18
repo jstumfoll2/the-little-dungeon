@@ -49,13 +49,15 @@ class Journey(
     startSkills: SkillBook,
     startWorld: WorldMemory,
     internal val clock: Clock = Clock.System,
+    /** Plays this story instead of the one [ArcPicker] would choose (for tests and tools). The pick is still made, so the seed's dice roll the same. */
+    storyId: String? = null,
 ) {
     internal val random = Random(seed)
     internal val say = JourneyLines(Random(random.nextLong()))
     internal val rooms = RoomLines(Random(random.nextLong()))
 
     val kingdom: Kingdom = Content.kingdom
-    val arc: Arc = ArcPicker.pick(startWorld, random)
+    val arc: Arc = ArcPicker.pick(startWorld, random).let { picked -> storyId?.let { Content.arc(it) } ?: picked }
     val variant: Variant = arc.variants.random(random)
 
     var hero: Hero = startHero

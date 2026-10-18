@@ -1307,3 +1307,18 @@ them into exactly what he saw, and the issue template says how.
 **Why we made it:** The old note listed replies as words and the seed alone could not rebuild an adventure that depended on the world's memory.
 
 **What might cause us to change it:** A grown-up space (roadmap Phase 8) that sends notes some other way.
+
+### 62. Book One gets more stories: the dragon and the lanterns
+
+**Status:** Accepted · 2026-10-18 · roadmap Phase 7
+
+**Decision:** Two new stories join "The Missing Pages": "The Dragon Who Didn't Want to Fight" (Dragon's Peak, which could not be reached
+before) and "The Night of a Thousand Lanterns" (a new lair, the Bat Belfry; the Bat King becomes a boss). Each is told three ways, brings a
+new person (Wren, Pip), reads friendships made in earlier stories, and changes what people say afterwards. The quest key a story needs is
+used up at its ending, so a later telling has to find it again. `Journey` takes an optional `storyId` so tests and tools can pick a story.
+
+**Why we made it:** Jason asked to keep adding to the storyline; the review (T4) found there was only one story, so every adventure after
+the first was the Baron again.
+
+**What might cause us to change it:** Playtests show a story is too long or too hard to follow without reading; or the rest of Book One
+(Ruby, the lost baby dragon, the Ink Shadow and the Storybook Ball) needs the stories reordered.
