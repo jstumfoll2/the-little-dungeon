@@ -1322,3 +1322,34 @@ the first was the Baron again.
 
 **What might cause us to change it:** Playtests show a story is too long or too hard to follow without reading; or the rest of Book One
 (Ruby, the lost baby dragon, the Ink Shadow and the Storybook Ball) needs the stories reordered.
+
+### 63. A quest book: the story so far, favors asked, where to go next, and the bag
+
+**Status:** Accepted · 2026-10-18 · issue #23
+
+**Decision:** A book button sits under the bag in the corner at every choice and on the map (never in a fight or a puzzle). It opens a
+two-page book: the quest page tells the story so far (the story's `summary`, `clues` found, and whether its key is found yet), every favor
+still open, quests finished this adventure, and where the baby dragon thinks to go next (the same road the map marks); the bag page shows
+everything worn and carried, and each picture says what it is and how many there are. Quests are data (`Quest` in a content pack) read
+from flags and items the people's own dialog already sets, so the book only reads the journey: opening it is not a `Command`, and replays
+never see it. Every sentence it can say is in `QuestBookLines.all()` for the voice catalog. Two favors that set no flag before now do
+(`finn_asked`, `ribbit_asked`), and conditions gain `AnyOf`.
+
+**Why we made it:** Jason's playtest note: the hero collects items and quests, and there was nowhere to see them, recall the story, or
+find out where to go.
+
+**What might cause us to change it:** He can't find the button, or the page says too much at once; then read one entry at a time, or let
+the dragon say only the next stop.
+
+### 64. Every merge to main is a numbered release
+
+**Status:** Accepted · 2026-10-18 · replaces the moving "latest" pre-release
+
+**Decision:** The `Build` workflow gives each push to main the next number (`build-1`, `build-2`, ...), builds the APK with that number
+in its version (`versionCode` 5 + N, `versionName` 0.5.N, so each installs over the last), and publishes a GitHub release with notes
+listing the merged pull requests. The APK is always named `the-little-dungeon.apk`, so `releases/latest/download/the-little-dungeon.apk`
+is always the newest. The old `latest` pre-release is deleted. Pushes to main queue rather than race for a number.
+
+**Why we made it:** Jason asked for a new release with each merge, so earlier builds stay downloadable and each has its changes listed.
+
+**What might cause us to change it:** Too many releases to scroll through; then release on a tag or a schedule instead.

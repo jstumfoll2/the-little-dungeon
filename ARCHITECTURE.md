@@ -43,7 +43,7 @@ What the journey is made from, in `rpg/*`:
 |---|---|
 | `content` | `Content`: the registry. Items, monsters, locations, roads, arcs, people, shops and flag-opened roads are `ContentPack`s built once, looked up by id. |
 | `world` | `Kingdom` (places and roads, `CoreKingdom`), `Terrain`, `RoomKind`, `WorldMemory` (what is remembered between adventures). |
-| `story` | `Arc` (a story with variants, moments, setup, peace and fight steps), `ArcPicker`, `Npc` and dialog graphs (`Dialog.kt`: conditions and effects), `CoreArcs`, `CoreNpcs`. |
+| `story` | `Arc` (a story with variants, moments, setup, peace and fight steps), `ArcPicker`, `Npc` and dialog graphs (`Dialog.kt`: conditions and effects), `Quest` (favors for the quest book, read from flags), `CoreArcs`, `CoreNpcs`, `CoreQuests`. |
 | `hero` | `Hero` (class, stars, coins, bag, worn gear), `HeroClass`, `Power`, `Progression` (levels and unlocks). |
 | `battle` | `Monster`, `Tier`, `CoreMonsters`; fights are rounds with a puzzle each. |
 | `items` | `Item`, `Slot`, `Obstacle`, shops. |
@@ -82,6 +82,7 @@ ui/game/AdventureScreen draws a Beat: backdrop, cast, then the Tell/Ask/Choose/T
 ui/game/Challenges.kt   the puzzle screens (AskBeat: counting, adding, colors, patterns, letters, tracing, memory, sorting, skip counting, jigsaw, and
                         screens for map and potion puzzles the journey doesn't deal yet); judge a try and reply Solved
 ui/game/JourneyUi.kt    the map (TravelBeat), shops, people (NpcStand) and monsters (BattleStage) on stage
+ui/game/QuestBookUi.kt  the quest book: story so far, open quests, next stop, and the bag (from `Journey.questBook()`)
 ui/game/MagicFx.kt      magic effects the narrator's words set off (sparkles, poofs, the wizard's hat); Finale.kt: the end of an adventure
 ui/art                  Rigs (layered characters), Pictures (art by name), Pictos (button symbols drawn in code)
 audio                   Narrator (plays recordings, makes missing sentences), Sfx, VoiceBank, KokoroVoice
@@ -115,7 +116,7 @@ Spoken words are the recordings above. Sound effects are small files in `assets/
   harness** (`rpg/balance`): simulated children play many journeys and the tests hold what matters (levels follow ability, answers can't be
   guessed from where they sit, no forced fights, a sitting is about ten minutes). `./gradlew :engine:balanceReport` prints the full table.
 - The `Build` workflow: fetches the voice, lists and records every sentence, runs the engine tests, builds the debug APK, prints the balance
-  report in the run summary, and on `main` publishes the APK as the `latest` release.
+  report in the run summary, and on `main` publishes a new numbered release (`build-N`) with the APK (decision #64).
 - The app has no tests yet (they need the Android SDK); screenshot tests are step 4.6 of the plan.
 
 ## Dependencies

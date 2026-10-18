@@ -20,6 +20,11 @@ sealed interface Cond {
     data class Chapter(val atLeast: Int) : Cond
     data class ArcIs(val arcId: String) : Cond
     data class Not(val cond: Cond) : Cond
+
+    /** True when any one of [conds] is. */
+    data class AnyOf(val conds: List<Cond>) : Cond {
+        constructor(vararg conds: Cond) : this(conds.toList())
+    }
 }
 
 /**

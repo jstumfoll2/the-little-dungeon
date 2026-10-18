@@ -18,6 +18,7 @@ an id used twice fails when the content is put together. These tests fail with t
 | A shop | `ShopDef` in `CoreShops`, listed in a `Location.shops` | none (uses item icons) |
 | A story | An `Arc` in `CoreArcs`; see the checklist below | whatever new people and places it brings |
 | A friendship that opens a road | `Content.flagRoads` | none |
+| A quest for the quest book | `Quest` in `CoreQuests`: the giver, `starts`, `steps` (each with `until` and the place `at`) and `done`, all read from flags and items the person's dialog already sets. A story's own line in the book is its `summary` and `clues`. `QuestBookTest` checks every flag is set somewhere | none (uses the giver's picture) |
 
 ## Flags
 

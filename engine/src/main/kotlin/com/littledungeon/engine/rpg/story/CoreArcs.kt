@@ -12,6 +12,8 @@ object CoreArcs {
      */
     val missingPages = Arc(
         id = "missing_pages",
+        summary = "The pages of the Great Storybook are missing, and Baron Grumblewick took them. His gate is sealed with sticky black ink.",
+        clues = listOf(Clue("knows_baron_lonely", "We found out that the Baron is lonely. Maybe he just wants somebody to listen.")),
         title = "The Missing Pages",
         lairId = "lair_manor",
         keyDungeonId = "inkwell_cellars",
@@ -97,6 +99,8 @@ object CoreArcs {
      */
     val dragonPeak = Arc(
         id = "dragon_peak",
+        summary = "Shiny things are vanishing, and everybody blames the dragon of Dragon's Peak. But is the dragon really mean?",
+        clues = listOf(Clue("knows_dragon_kind", "Wren told us a secret: the dragon kept her safe in the snow. The dragon is kind!")),
         title = "The Dragon Who Didn't Want to Fight",
         lairId = "lair_peak",
         keyDungeonId = "gloomwood_mine",
@@ -182,6 +186,8 @@ object CoreArcs {
      */
     val thousandLanterns = Arc(
         id = "thousand_lanterns",
+        summary = "The lanterns of Lantern Hollow are going missing, and the bats are carrying them away to the Bat Belfry.",
+        clues = listOf(Clue("knows_bats_scared", "We found out that the bats are scared of the dark. That is why they take the lanterns!")),
         title = "The Night of a Thousand Lanterns",
         lairId = "lair_belfry",
         keyDungeonId = "spider_caves",

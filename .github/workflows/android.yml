@@ -9,11 +9,26 @@ on:
 permissions:
   contents: write
 
+# Merges to main queue up rather than race, so two releases never take the same number. A newer push to a pull request
+# cancels the build already running for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Every merge to main is a numbered release: build-1, build-2, ... The number also goes into the app's version, so
+      # each one installs over the last.
+      - name: Pick the release number
+        id: release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          last=$(git ls-remote --tags origin 'refs/tags/build-*' | sed -E 's#.*refs/tags/build-([0-9]+)$#\1#' | grep -E '^[0-9]+$' | sort -n | tail -1)
+          echo "number=$(( ${last:-0} + 1 ))" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
         with:
@@ -58,7 +73,7 @@ jobs:
         run: python3 scripts/render-voice.py engine/build/voice/lines.txt app/src/main/assets/kokoro voice-cache app/src/main/assets/voice
 
       - name: Test the engine and build the app
-        run: ./gradlew :engine:test :app:assembleDebug --stacktrace
+        run: ./gradlew :engine:test :app:assembleDebug --stacktrace ${{ steps.release.outputs.number && format('-PbuildNumber={0}', steps.release.outputs.number) || '' }}
 
       # Simulated children play many journeys: how long it takes, which skills come up, whether levels drift.
       - name: Balance report
@@ -72,16 +87,20 @@ jobs:
           name: the-little-dungeon-debug
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      # On main, replace the "latest" pre-release so the newest APK is always one tap away on the phone.
-      - name: Publish the latest build
+      # On main, publish a new numbered release with the APK. The file keeps one name, so
+      # https://github.com/<owner>/<repo>/releases/latest/download/the-little-dungeon.apk is always the newest build.
+      - name: Publish the release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.release.outputs.number }}
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk the-little-dungeon.apk
-          gh release delete latest --yes --cleanup-tag || true
-          gh release create latest the-little-dungeon.apk \
-            --prerelease \
+          gh release create "build-$NUMBER" the-little-dungeon.apk \
             --target "$GITHUB_SHA" \
-            --title "Latest build" \
-            --notes "Built from ${GITHUB_SHA::7}. On the phone, download the-little-dungeon.apk and open it to install."
+            --title "Build $NUMBER" \
+            --latest \
+            --generate-notes \
+            --notes "Built from ${GITHUB_SHA::7} (version 0.5.$NUMBER). On the phone, download the-little-dungeon.apk and open it to install."
+          # The old moving "latest" pre-release is replaced by these numbered releases.
+          gh release delete latest --yes --cleanup-tag || true
