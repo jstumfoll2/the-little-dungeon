@@ -478,11 +478,11 @@ object CoreNpcs {
             n(
                 "hub", "Can you count my chicks?",
                 listOf(
-                    o("Count the chicks", "talk_puzzle", null, listOf(Puzzle("CLIMB", "found", "missed", Skill.COUNTING, "My chicks are hiding under the mushrooms, one chick under each.", Thing.MUSHROOM)), needs = listOf(NoFlag("run:hen_chicks"))),
+                    o("Count the chicks", "talk_puzzle", null, listOf(Puzzle("CLIMB", "found", "missed", Skill.COUNTING, "My chicks are hiding under the mushrooms. Look, each one is peeking out!", Thing.CHICK)), needs = listOf(NoFlag("run:hen_chicks"))),
                     bye(),
                 ),
             ),
-            n("found", "You counted every mushroom, so every chick is found! You are a very clever counter. Please take a honey cake, and a coin for your trouble.", listOf(bye()), listOf(Give("honey_cake"), Earn(4), SetFlag("run:hen_chicks"))),
+            n("found", "You counted every chick, so they are all found! You are a very clever counter. Please take a honey cake, and a coin for your trouble.", listOf(bye()), listOf(Give("honey_cake"), Earn(4), SetFlag("run:hen_chicks"))),
             n("missed", "Oh dear, I think one chick is still hiding. Come back and help me count again.", listOf(bye()), listOf(SetFlag("run:hen_chicks"))),
         ),
     )

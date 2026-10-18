@@ -563,6 +563,16 @@ def potion(kind):
 
 # ---------------------------------------------------------------- ingredients
 
+# One of Henrietta's chicks peeking out from under a mushroom (her counting game counts chicks, not mushrooms).
+CHICK = (
+    '<ellipse cx="104" cy="112" rx="22" ry="16" fill="#ffe066" stroke="#7a5a08" stroke-width="4"/>'
+    '<circle cx="108" cy="94" r="15" fill="#ffe066" stroke="#7a5a08" stroke-width="4"/>'
+    '<path d="M121 92 l10 4 l-10 4 Z" fill="#f0902a" stroke="#7a5a08" stroke-width="2" stroke-linejoin="round"/>'
+    '<circle cx="113" cy="92" r="3.2" fill="#2a1c10"/><circle cx="114" cy="91" r="1.1" fill="#fff"/>'
+    '<ellipse cx="112" cy="100" rx="4" ry="2.4" fill="#ff9a9a" opacity="0.7"/>'
+    '<path d="M92 108 q-8 4 -10 12" stroke="#e8b830" stroke-width="4" fill="none" stroke-linecap="round"/>'
+)
+
 def ingredient(kind):
     if kind == "leaf":
         o = "#1f4d1c"
@@ -636,6 +646,7 @@ def ingredient(kind):
         body = (
             shadow(70, 126, 44, 7)
             + f'<path d="M54 76 C52 98 50 110 46 122 L94 122 C90 110 88 98 86 76 Z" fill="url(#stemFill)" stroke="{o}" stroke-width="5" stroke-linejoin="round"/>'
+            + (CHICK if kind == "chick" else "")
             + f'<path d="M14 80 C14 38 42 16 70 16 C98 16 126 38 126 80 C108 90 32 90 14 80 Z" fill="url(#capFill)" stroke="{o}" stroke-width="5" stroke-linejoin="round"/>'
             + "".join(f'<ellipse cx="{x}" cy="{y}" rx="{r}" ry="{r * 0.85:.1f}" fill="#fff6ff" stroke="{o}" stroke-width="2" stroke-opacity="0.4"/>'
                       for x, y, r in [(48, 46, 9), (84, 34, 7), (104, 60, 8), (70, 66, 6), (30, 70, 5)])
@@ -1036,6 +1047,7 @@ def sprites() -> dict:
         out[f"potion_{kind}"] = (potion(kind), None)
     for kind in ("leaf", "berry", "crystal", "flower", "mushroom"):
         out[f"ingredient_{kind}"] = (ingredient(kind), None)
+    out["chick_mushroom"] = (ingredient("chick"), None)
     out["book"] = (book(), None)
     out["lantern"] = (lantern(), None)
     out["treasure"] = (treasure(), None)

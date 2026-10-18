@@ -313,7 +313,13 @@ class Journey(
         // Before each adventure: which chapter of the Storybook this is, and how many pages are home.
         steps += tell(s, say.chapter(chapter, arc.title))
         if (world.adventures > 0 && world.pages > 0) steps += tell(s, say.pagesLine(world.pages))
-        (if ((world.arcsDone[arc.id] ?: 0) > 0 && arc.returnSetup.isNotEmpty()) arc.returnSetup else arc.setup).forEach { steps += tell(s, it) }
+        // Professor Hoot tells the setup: once he starts talking he stands in the scene, so a named speaker is always seen.
+        val withHoot = Content.npc("professor_hoot")?.let { s.copy(npc = view(it)) } ?: s
+        var hootHere = false
+        (if ((world.arcsDone[arc.id] ?: 0) > 0 && arc.returnSetup.isNotEmpty()) arc.returnSetup else arc.setup).forEach {
+            if ("<elder>" in it) hootHere = true
+            steps += tell(if (hootHere) withHoot else s, it)
+        }
         steps += tell(JourneyStory.mapScene(this), JourneyStory.toTheMap(this, chapter))
         return steps
     }

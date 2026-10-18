@@ -14,6 +14,8 @@ enum class Thing(val one: String, val many: String) {
     POTION("potion", "potions"),
     KEY("key", "keys"),
     MUSHROOM("mushroom", "mushrooms"),
+    /** Henrietta's chicks, each peeking out from under a mushroom. */
+    CHICK("chick", "chicks"),
     ;
 
     fun words(n: Int) = if (n == 1) one else many

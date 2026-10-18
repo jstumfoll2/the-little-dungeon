@@ -93,6 +93,7 @@ object Art {
         Thing.POTION -> R.drawable.art_potion_glow
         Thing.KEY -> R.drawable.art_key
         Thing.MUSHROOM -> R.drawable.art_ingredient_mushroom
+        Thing.CHICK -> R.drawable.art_chick_mushroom
     }
 
     @DrawableRes

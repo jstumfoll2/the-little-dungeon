@@ -171,8 +171,14 @@ def bat(c="#8a6fb0", crown=False, big=False):
     body = (
         f'<path d="{wl}" fill="url(#bw)" {S(o)}/><path d="{wr}" fill="url(#bw)" {S(o)}/>'
         f'<path d="M80 54 L70 18 L104 40 Z M160 54 L170 18 L136 40 Z" fill="url(#bb)" {S(o)}/>'
-        f'<ellipse cx="120" cy="160" rx="52" ry="58" fill="url(#bb)" {S(o)}/><ellipse cx="120" cy="176" rx="30" ry="36" fill="{light(c, 0.45)}" {S(o, 3)}/>'
-        f'<circle cx="120" cy="104" r="50" fill="url(#bb)" {S(o)}/>'
+        # The Bat King wears a royal cape with a snowy collar, so he reads as the king of the belfry.
+        + (f'<path d="M72 150 C56 196 60 238 78 254 L162 254 C180 238 184 196 168 150 Z" fill="#b8323e" {S(o)}/>'
+           f'<path d="M86 160 C80 200 82 232 92 250 M154 160 C160 200 158 232 148 250" stroke="#7a1a2a" stroke-width="4" fill="none" opacity="0.6"/>' if crown else '')
+        + f'<ellipse cx="120" cy="160" rx="52" ry="58" fill="url(#bb)" {S(o)}/><ellipse cx="120" cy="176" rx="30" ry="36" fill="{light(c, 0.45)}" {S(o, 3)}/>'
+        + (f'<path d="M80 150 C96 168 144 168 160 150 L164 164 C146 182 94 182 76 164 Z" fill="#fbf6ee" {S(o, 3)}/>'
+           + ''.join(f'<path d="M{x} {y} v6" stroke="{o}" stroke-width="3" stroke-linecap="round"/>' for x, y in [(90, 164), (106, 170), (120, 172), (134, 170), (150, 164)])
+           + f'<circle cx="120" cy="184" r="7" fill="#ffd34d" {S(o, 2.5)}/>' if crown else '')
+        + f'<circle cx="120" cy="104" r="50" fill="url(#bb)" {S(o)}/>'
         f'<path d="M104 140 L110 154 L116 140 M124 140 L130 154 L136 140" fill="#fff" {S(o, 2.5)}/>'
         f'<path d="M104 232 L98 248 M136 232 L142 248" {S("#e8a020", 6)}/>'
         + (f'<path d="M86 66 L90 34 L104 50 L120 26 L136 50 L150 34 L154 66 Z" fill="#ffd34d" {S(o)}/><circle cx="120" cy="40" r="5" fill="#e23b3b" {S(o, 2.5)}/>' if crown else '')
