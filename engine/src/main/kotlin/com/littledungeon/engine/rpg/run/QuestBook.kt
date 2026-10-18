@@ -121,7 +121,7 @@ object QuestBookLines {
     fun item(item: Item, count: Int, worn: Boolean) = buildString {
         append(item.blurb)
         if (worn) append(" You are wearing it.")
-        if (count > 1) append(" You have ${Words.number(count)}.")
+        if (count > MAX_COUNT) append(" You have lots and lots.") else if (count > 1) append(" You have ${Words.number(count)}.")
     }
 
     /** Every sentence the quest book can say, for the voice catalog. */
@@ -143,11 +143,11 @@ object QuestBookLines {
             add(tipHere(goal))
             for (next in names) add(tip(next, goal))
         }
-        for (item in Content.items) for (worn in listOf(false, true)) for (count in 1..MAX_COUNT) add(item(item, count, worn))
+        for (item in Content.items) for (worn in listOf(false, true)) for (count in 1..MAX_COUNT + 1) add(item(item, count, worn))
     }.filter { it.isNotBlank() }
 
-    /** The most of one thing the voice catalog plans for; more is said by the phone's own voice. */
-    private const val MAX_COUNT = 40
+    /** The most of one thing said as a number; more is "lots and lots". */
+    private const val MAX_COUNT = 99
 
     private fun place(id: String) = lower(Content.kingdom.location(id).name)
 
