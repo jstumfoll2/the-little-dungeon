@@ -82,7 +82,7 @@ class Narrator(context: Context, private val name: () -> String) {
     var talking by mutableStateOf(settings.getBoolean(TALKING, true))
         private set
 
-    fun setTalking(on: Boolean) {
+    fun turnTalking(on: Boolean) {
         talking = on
         settings.edit().putBoolean(TALKING, on).apply()
         if (!on) stop()

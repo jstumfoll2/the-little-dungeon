@@ -153,7 +153,7 @@ fun TitleScreen(vm: GameViewModel) {
         ) {
             sfx.play("tap")
             FeedbackLog.note("settings", "talking ${!narrator.talking}")
-            narrator.setTalking(!narrator.talking)
+            narrator.turnTalking(!narrator.talking)
         }
 
         // Pick a hero
