@@ -63,4 +63,8 @@ data class Arc(
     val friendEnd: String? = null,
     /** At the lair when the hero fought and beat the boss in an earlier adventure. */
     val rivalMeeting: String? = null,
+    /** The story so far in a sentence or two, for the quest book. */
+    val summary: String = "",
+    /** What the hero can find out along the way, for the quest book. */
+    val clues: List<Clue> = emptyList(),
 )

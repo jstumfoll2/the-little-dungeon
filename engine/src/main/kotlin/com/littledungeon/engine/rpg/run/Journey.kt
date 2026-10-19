@@ -101,6 +101,9 @@ class Journey(
     internal var finishing = false
     internal var lastEnding = ""
 
+    /** Quests already finished before this adventure, so the quest book only cheers for the ones finished in it. */
+    internal val questsDoneBefore: Set<String> = questsDone()
+
     /** What the hero is carrying and how they are doing, for the corner of the screen. */
     data class Bag(val hp: Int, val maxHp: Int, val coins: Int, val hasKey: Boolean, val pages: Int)
 
@@ -293,6 +296,7 @@ class Journey(
         is Cond.Chapter -> ArcPicker.chapter(world) >= c.atLeast
         is Cond.ArcIs -> arc.id == c.arcId
         is Cond.Not -> !holds(c.cond)
+        is Cond.AnyOf -> c.conds.any { holds(it) }
     }
 
     internal fun holds(all: List<Cond>): Boolean = all.all { holds(it) }

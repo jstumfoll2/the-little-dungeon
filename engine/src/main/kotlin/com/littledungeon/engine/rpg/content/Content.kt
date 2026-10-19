@@ -7,8 +7,10 @@ import com.littledungeon.engine.rpg.items.Item
 import com.littledungeon.engine.rpg.story.Arc
 import com.littledungeon.engine.rpg.story.CoreArcs
 import com.littledungeon.engine.rpg.story.CoreNpcs
+import com.littledungeon.engine.rpg.story.CoreQuests
 import com.littledungeon.engine.rpg.story.CoreShops
 import com.littledungeon.engine.rpg.story.Npc
+import com.littledungeon.engine.rpg.story.Quest
 import com.littledungeon.engine.rpg.story.ShopDef
 import com.littledungeon.engine.rpg.world.CoreKingdom
 import com.littledungeon.engine.rpg.world.Kingdom
@@ -30,6 +32,9 @@ interface ContentPack {
     val npcs: List<Npc> get() = emptyList()
     val shops: List<ShopDef> get() = emptyList()
 
+    /** Favors people ask, for the quest book. */
+    val quests: List<Quest> get() = emptyList()
+
     /** A remembered fact that keeps roads open in every later adventure (the troll's boat, the bandit's path). */
     val flagRoads: Map<String, List<String>> get() = emptyMap()
 }
@@ -44,6 +49,7 @@ object CorePack : ContentPack {
     override val arcs = CoreArcs.all
     override val npcs = CoreNpcs.all
     override val shops = CoreShops.all
+    override val quests = CoreQuests.all
     override val flagRoads = CoreKingdom.flagRoads
 }
 
@@ -60,6 +66,7 @@ class Registry(val packs: List<ContentPack>) {
     val arcs: List<Arc> = packs.flatMap { it.arcs }
     val npcs: List<Npc> = packs.flatMap { it.npcs }
     val shops: List<ShopDef> = packs.flatMap { it.shops }
+    val quests: List<Quest> = packs.flatMap { it.quests }
     val flagRoads: Map<String, List<String>> =
         packs.flatMap { it.flagRoads.entries }.groupBy({ it.key }, { it.value }).mapValues { (_, v) -> v.flatten() }
 
@@ -70,12 +77,14 @@ class Registry(val packs: List<ContentPack>) {
     private val npcById = unique("person", npcs) { it.id }
     private val shopById = unique("shop", shops) { it.id }
     private val arcById = unique("story", arcs) { it.id }
+    private val questById = unique("quest", quests) { it.id }
 
     fun item(id: String): Item? = itemById[id]
     fun monster(id: String): Monster? = monsterById[id]
     fun npc(id: String): Npc? = npcById[id]
     fun shop(id: String): ShopDef? = shopById[id]
     fun arc(id: String): Arc? = arcById[id]
+    fun quest(id: String): Quest? = questById[id]
 
     private fun <T> unique(what: String, list: List<T>, id: (T) -> String): Map<String, T> {
         val map = LinkedHashMap<String, T>()
@@ -102,6 +111,7 @@ object Content {
     val arcs: List<Arc> get() = registry.arcs
     val npcs: List<Npc> get() = registry.npcs
     val shops: List<ShopDef> get() = registry.shops
+    val quests: List<Quest> get() = registry.quests
     val flagRoads: Map<String, List<String>> get() = registry.flagRoads
 
     /** The map of Whisperwood, put together from every pack's places and roads. */
@@ -110,6 +120,7 @@ object Content {
     fun npc(id: String): Npc? = registry.npc(id)
     fun shop(id: String): ShopDef? = registry.shop(id)
     fun arc(id: String): Arc? = registry.arc(id)
+    fun quest(id: String): Quest? = registry.quest(id)
     fun item(id: String): Item? = registry.item(id)
     fun monster(id: String): Monster? = registry.monster(id)
 }

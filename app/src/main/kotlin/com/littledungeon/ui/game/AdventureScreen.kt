@@ -71,6 +71,8 @@ import com.littledungeon.engine.rpg.learn.Words
 import com.littledungeon.engine.rpg.run.Actor
 import com.littledungeon.engine.rpg.run.Beat
 import com.littledungeon.engine.rpg.run.Place
+import com.littledungeon.engine.rpg.run.QuestBook
+import com.littledungeon.engine.rpg.run.questBook
 import com.littledungeon.engine.rpg.run.Reply
 import com.littledungeon.engine.rpg.run.Say
 import com.littledungeon.engine.rpg.run.speech
@@ -100,6 +102,9 @@ fun AdventureScreen(vm: GameViewModel) {
     val speakingAs by narrator.speakingAs.collectAsState()
     var caption by remember { mutableStateOf<List<Speech>>(emptyList()) }
     var heroMood by remember { mutableStateOf(Mood.CALM) }
+    // The quest book opens over a choice or the map, never in a fight or a puzzle, and closes when the beat changes.
+    var book by remember(vm.beatNumber) { mutableStateOf<QuestBook?>(null) }
+    val canOpenBook = beat is Beat.Travel || (beat is Beat.Choose && beat.scene.battle == null)
     val interactive = beat !is Beat.Tell && beat !is Beat.Found && beat !is Beat.Night && beat.scene.battle == null
     // How far the visitors have stepped back to leave room for a challenge.
     val back by animateFloatAsState(if (interactive) 1f else 0f, tween(500), label = "back")
@@ -147,7 +152,8 @@ fun AdventureScreen(vm: GameViewModel) {
             }
         }
 
-        key(vm.beatNumber) {
+        // While the book is open the beat steps aside; when it closes, the beat starts again and asks its question again.
+        if (book == null) key(vm.beatNumber) {
             when (beat) {
                 is Beat.Tell -> TellBeat(beat.lines, say) { reply(Reply.Next) }
                 is Beat.Found -> FoundBeat(beat, say, celebrate) { reply(Reply.Next) }
@@ -184,11 +190,20 @@ fun AdventureScreen(vm: GameViewModel) {
         VoiceLoading()
         Column(Modifier.align(Alignment.TopEnd).padding(10.dp), horizontalAlignment = Alignment.End) {
             BagBar(adventure.bag, h * 0.07f)
+            if (canOpenBook && book == null) {
+                RoundButton(Picto.BOOK, Palette.Berry, h * 0.13f, Modifier.padding(top = 6.dp)) {
+                    narrator.stop()
+                    caption = emptyList()
+                    FeedbackLog.note("questbook", "opened")
+                    book = adventure.questBook()
+                }
+            }
             beat.scene.battle?.let { b ->
                 HealthBar(b.heroHp, b.heroMaxHp, h * 0.07f, Modifier.padding(top = 6.dp), label = "You")
                 HealthBar(b.foe.hp, b.foe.maxHp, h * 0.07f, Modifier.padding(top = 6.dp), label = "Foe")
             }
         }
+        book?.let { QuestBookScreen(it) { book = null } }
     }
 }
 

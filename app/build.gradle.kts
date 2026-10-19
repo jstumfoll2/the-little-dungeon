@@ -11,8 +11,10 @@ android {
         applicationId = "io.github.jstumfoll2.thelittledungeon"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0"
+        // CI passes -PbuildNumber on main (one more for every merge), so each release installs over the last one.
+        val buildNumber = (findProperty("buildNumber") as String?)?.toIntOrNull() ?: 0
+        versionCode = 5 + buildNumber
+        versionName = "0.5.$buildNumber"
 
         // The narrator voice ships for 64-bit ARM phones only, which is every phone this targets.
         ndk { abiFilters += "arm64-v8a" }

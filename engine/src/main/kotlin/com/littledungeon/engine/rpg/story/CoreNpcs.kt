@@ -360,7 +360,7 @@ object CoreNpcs {
                     bye(),
                 ),
             ),
-            n("story", "My boat went missing from the dock a month ago. A big troll was seen heading off with it toward Old Stone Bridge. If somebody could just ask him nicely, I would be ever so grateful.", listOf(o("I will ask him", "talk_help", "hub"))),
+            n("story", "My boat went missing from the dock a month ago. A big troll was seen heading off with it toward Old Stone Bridge. If somebody could just ask him nicely, I would be ever so grateful.", listOf(o("I will ask him", "talk_help", "hub", listOf(SetFlag("finn_asked"))))),
             n(
                 "boat", "My boat! Grumble brought it back himself, and he was blushing! Everyone can use the river ferry now. Here, take this rope with my thanks.",
                 listOf(bye()), listOf(Give("rope"), SetFlag("finn_boat"), Relation("finn_fisher", 3)),
@@ -383,7 +383,7 @@ object CoreNpcs {
                     bye(),
                 ),
             ),
-            n("why", "To pass my knight exam I must bring my teacher a bag of magic beans. Nobody has any. Well, the fox at the market has some, but he says they cost a fortune.", listOf(o("I will see what I can do", "talk_yes", "hub"))),
+            n("why", "To pass my knight exam I must bring my teacher a bag of magic beans. Nobody has any. Well, the fox at the market has some, but he says they cost a fortune.", listOf(o("I will see what I can do", "talk_yes", "hub", listOf(SetFlag("ribbit_asked"))))),
             n("joke", "Ha! That was a knightly joke indeed! You have the heart of a true knight.", listOf(o("Thank you", "talk_laugh", "hub"))),
             n(
                 "beans", "Magic beans! You have magic beans! <narrator>Sir Ribbit takes the bag and does a happy little hop. <critter>I have passed my exam! Take this, it is the least I can do.",

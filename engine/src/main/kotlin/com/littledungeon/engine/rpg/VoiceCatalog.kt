@@ -24,6 +24,8 @@ import com.littledungeon.engine.rpg.run.Beat
 import com.littledungeon.engine.rpg.run.Reply
 import com.littledungeon.engine.rpg.run.RoomLines
 import com.littledungeon.engine.rpg.run.PICK_ONE_SKILLS
+import com.littledungeon.engine.rpg.run.QuestBookLines
+import com.littledungeon.engine.rpg.run.questBook
 import com.littledungeon.engine.rpg.run.Say
 import com.littledungeon.engine.rpg.run.addStory
 import com.littledungeon.engine.rpg.run.peaceChallenge
@@ -55,6 +57,13 @@ object VoiceCatalog {
                     is Voice.Piece.Sound -> sounds += p.id
                 }
             }
+        }
+        // The quest book can be opened at a choice or on the map: everything it would say there.
+        fun hearBook(j: Journey) {
+            val book = j.questBook()
+            hear(book.questsSaid)
+            hear(book.bagSaid)
+            book.bag.forEach { hear(it.said) }
         }
         val choices = mutableSetOf<String>()
         val r = Random(seed)
@@ -103,11 +112,13 @@ object VoiceCatalog {
                         Reply.Rolled(r.nextBoolean(), r.nextInt(1, 3))
                     }
                     is Beat.Choose -> {
+                        if (b.scene.battle == null) hearBook(a)
                         hear(b.prompt)
                         b.options.forEach { choices += it.said }
                         Reply.Picked(r.nextInt(b.options.size))
                     }
                     is Beat.Travel -> {
+                        hearBook(a)
                         hear(b.prompt)
                         b.routes.forEach { hear(it.said) }
                         Reply.Picked(r.nextInt(b.routes.size))
@@ -128,6 +139,7 @@ object VoiceCatalog {
         }
         enumerateDomains(::hear)
         JourneyLines.numbered().forEach { hear(Speech.of(it)) }
+        QuestBookLines.all().forEach { hear(Speech.of(it)) }
         Say.all(choices.toList()).forEach { hear(Speech.of(it)) }
         return sentences.sortedWith(compareBy({ it.who }, { it.text })).toCollection(linkedSetOf()) to sounds
     }
