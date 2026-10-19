@@ -219,31 +219,39 @@ class StoryMemoryTest {
         val after = WorldMemory(adventures = 1, pages = 1, arcsDone = mapOf("missing_pages" to 1), lastArc = "missing_pages")
         val next = (1L..40L).map { Journey(it, strong, SkillBook(), after, Clock { 0L }).arc.id }.toSet()
         assertTrue("missing_pages" !in next, "the story just played is not told again straight away")
-        assertEquals(setOf("dragon_peak", "thousand_lanterns"), next, "both new stories come up")
+        assertEquals(setOf("dragon_peak", "thousand_lanterns", "quiet_river"), next, "every new story comes up")
     }
 
     @Test
     fun `believing Wren about the dragon spares a puzzle`() {
-        fun asks(flags: Set<String>): Int {
-            val j = Journey(1, strong.give("cloud_whistle"), SkillBook(), WorldMemory(adventures = 1, pages = 1, flags = flags), Clock { 0L }, storyId = "dragon_peak")
-            j.load(j.lairArrival(Content.kingdom.location(j.arc.lairId)))
-            var n = 0
-            var guard = 0
-            while (!j.finished && guard++ < 200) {
-                val b = j.beat
-                if (b is Beat.Ask) n++
-                j.reply(
-                    when (b) {
-                        is Beat.Choose -> Reply.Picked(b.options.indexOfFirst { it.icon == "hub_peace" })
-                        is Beat.Ask -> Reply.Solved(1, 0, 0)
-                        else -> Reply.Next
-                    },
-                )
-            }
-            return n
+        assertEquals(3, peaceAsks("dragon_peak", "cloud_whistle", emptySet()))
+        assertEquals(2, peaceAsks("dragon_peak", "cloud_whistle", setOf("knows_dragon_kind")), "the dragon sees the hero already knows it is kind")
+    }
+
+    @Test
+    fun `bringing word of Kit spares the Beaver Queen's first puzzle`() {
+        assertEquals(3, peaceAsks("quiet_river", "shell_horn", emptySet()))
+        assertEquals(2, peaceAsks("quiet_river", "shell_horn", setOf("knows_kit_safe")), "the Queen hears that her kit is safe")
+    }
+
+    /** Arrives at a story's lair with its key, makes peace, and counts the puzzles on the way. */
+    private fun peaceAsks(story: String, key: String, flags: Set<String>): Int {
+        val j = Journey(1, strong.give(key), SkillBook(), WorldMemory(adventures = 1, pages = 1, flags = flags), Clock { 0L }, storyId = story)
+        j.load(j.lairArrival(Content.kingdom.location(j.arc.lairId)))
+        var n = 0
+        var guard = 0
+        while (!j.finished && guard++ < 200) {
+            val b = j.beat
+            if (b is Beat.Ask) n++
+            j.reply(
+                when (b) {
+                    is Beat.Choose -> Reply.Picked(b.options.indexOfFirst { it.icon == "hub_peace" })
+                    is Beat.Ask -> Reply.Solved(1, 0, 0)
+                    else -> Reply.Next
+                },
+            )
         }
-        assertEquals(3, asks(emptySet()))
-        assertEquals(2, asks(setOf("knows_dragon_kind")), "the dragon sees the hero already knows it is kind")
+        return n
     }
 
     @Test

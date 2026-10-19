@@ -342,10 +342,18 @@ object CoreNpcs {
         "finn_fisher", "Finn the Fisherman", "Fisherman of the Dock", Who.TOWNSMAN,
         "Finn has fished the lake for thirty years. His rowboat has been missing for a month, and the whole village has had to go the long way round the river without it.",
         "Ahoy there! I am Finn. Best fisherman on the lake. Worst luck in the kingdom, lately.",
-        listOf(Start("boat", Flag("grumble_befriended"), NoFlag("finn_boat")), Start("hub")),
+        listOf(Start("boat", Flag("grumble_befriended"), NoFlag("finn_boat")), Start("river", ArcIs("quiet_river")), Start("hub")),
         listOf(
             n(
                 "hub", "Care to buy some supplies?",
+                listOf(
+                    o("Look at his stall", "talk_buy", null, listOf(Shop("dockstall"))),
+                    o("Ask about his boat", "talk_ask", "story"),
+                    bye(),
+                ),
+            ),
+            n(
+                "river", "The river has stopped running, and my boats are sitting in the mud! And the little beaver I found asleep on a log, Kit, keeps asking to go home, up the river.",
                 listOf(
                     o("Look at his stall", "talk_buy", null, listOf(Shop("dockstall"))),
                     o("Ask about his boat", "talk_ask", "story"),
@@ -557,5 +565,28 @@ object CoreNpcs {
         ),
     )
 
-    val all = listOf(hoot, tilly, bun, willow, hazel, brogan, zig, fox, lumi, hob, merlo, finn, ribbit, grumble, bess, fern, henrietta, otto, wren, pip)
+    val kit = Npc(
+        "kit_beaver", "Kit", "The littlest beaver", Who.CHILD,
+        "Kit is the Beaver Queen's littlest kit. One day Kit fell asleep on a log, and the log floated all the way down the river to Fishers' Dock. Finn has looked after Kit ever since, but Kit misses home.",
+        "Hello! I am Kit. I floated here on a log. A very fast log.",
+        listOf(Start("home", Flag("friend:beaver_queen")), Start("thanks", Flag("kit_message")), Start("hub")),
+        listOf(
+            n(
+                "hub", "Do you know the way up the river? My home is up there.",
+                listOf(
+                    o("Ask about Kit's home", "talk_ask", "family"),
+                    o("Take a message home", "talk_help", "message", listOf(SetFlag("kit_message"), SetFlag("knows_kit_safe"), Relation("kit_beaver", 2))),
+                    o("Play a splash game", "talk_laugh", "splash", listOf(SetFlag("run:kit_splash"), Stars(Attribute.KINDNESS, 5)), needs = listOf(NoFlag("run:kit_splash"))),
+                    bye(),
+                ),
+            ),
+            n("family", "My Mama is the Beaver Queen. She builds the biggest dams in the whole kingdom. I fell asleep on a log, and when I woke up, I was here!", listOf(o("She must miss you", "talk_yes", "hub"))),
+            n("message", "You will? Please tell Mama I am safe with Finn, and I have fish pie every day. Then she will know it is really me.", listOf(bye())),
+            n("splash", "Splash! Splash! I can slap the water with my tail. Can you? That was fun!", listOf(o("That was fun", "talk_laugh", "hub"))),
+            n("thanks", "Did you tell Mama I am safe? I hope she is not worried anymore.", listOf(bye("Wave goodbye"))),
+            n("home", "Mama and I ride the river down to see Finn now, on a raft she built. And the river is singing again!", listOf(bye("Wave goodbye"))),
+        ),
+    )
+
+    val all = listOf(hoot, tilly, bun, willow, hazel, brogan, zig, fox, lumi, hob, merlo, finn, ribbit, grumble, bess, fern, henrietta, otto, wren, pip, kit)
 }

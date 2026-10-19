@@ -116,7 +116,7 @@ Spoken words are the recordings above. Sound effects are small files in `assets/
   harness** (`rpg/balance`): simulated children play many journeys and the tests hold what matters (levels follow ability, answers can't be
   guessed from where they sit, no forced fights, a sitting is about ten minutes). `./gradlew :engine:balanceReport` prints the full table.
 - The `Build` workflow: fetches the voice, lists and records every sentence, runs the engine tests, builds the debug APK, prints the balance
-  report in the run summary, and on `main` publishes a new numbered release (`build-N`) with the APK (decision #64).
+  report in the run summary, and on `main` publishes a new numbered release (`build-N`) with the APK (decision #65).
 - The app has no tests yet (they need the Android SDK); screenshot tests are step 4.6 of the plan.
 
 ## Dependencies

@@ -1323,7 +1323,21 @@ the first was the Baron again.
 **What might cause us to change it:** Playtests show a story is too long or too hard to follow without reading; or the rest of Book One
 (Ruby, the lost baby dragon, the Ink Shadow and the Storybook Ball) needs the stories reordered.
 
-### 63. A quest book: the story so far, favors asked, where to go next, and the bag
+### 63. A fourth story: the river and the Beaver Queen
+
+**Status:** Accepted · 2026-10-19 · roadmap Phase 7
+
+**Decision:** "The River That Stopped Singing" joins Book One from chapter two on. It adds a lair, the Beaver Dam, at the top of the east
+river (reached from Inkwell Cellars or Windy Pass, so it is as far from camp as the other lairs), a boss, the Beaver Queen, and a new
+person, Kit, at Fishers' Dock. Its key is the Shell Horn from the Sunken Crypt, the one dungeon no story used yet. When every road from a
+place is closed for a while (a lair has only two), they open again, so the hero is never stuck.
+
+**Why we made it:** Jason asked for another storyline after the second art review.
+
+**What might cause us to change it:** Playtests show the beaver story is too sad in the lost-kit telling, or the map needs a lair in the
+west so the kingdom feels balanced.
+
+### 64. A quest book: the story so far, favors asked, where to go next, and the bag
 
 **Status:** Accepted · 2026-10-18 · issue #23
 
@@ -1341,7 +1355,7 @@ find out where to go.
 **What might cause us to change it:** He can't find the button, or the page says too much at once; then read one entry at a time, or let
 the dragon say only the next stop.
 
-### 64. Every merge to main is a numbered release
+### 65. Every merge to main is a numbered release
 
 **Status:** Accepted · 2026-10-18 · replaces the moving "latest" pre-release
 

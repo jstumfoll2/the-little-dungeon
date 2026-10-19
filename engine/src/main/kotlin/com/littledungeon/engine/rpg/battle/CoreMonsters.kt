@@ -159,6 +159,13 @@ object CoreMonsters {
 
     val bosses = listOf(
         Monster(
+            "beaver_queen", "The Beaver Queen", Tier.BOSS, 62, 8, listOf(COUNTING, PATTERNS, LETTERS, COLORS), Who.GRANNY,
+            "The Beaver Queen slaps her big flat tail on the water. Splash! <granny>Nobody touches my dam. Not one stick!",
+            "The Beaver Queen's twig crown slips into the pond. <granny>Oh, my dam. All right, all right. Let the river go.",
+            "The Beaver Queen spins her tail like a paddle, and a big wave knocks you right over.",
+            coins = 20..30, drops = listOf(Drop("storybook_page", 100), Drop("honey_cake", 60)),
+        ),
+        Monster(
             "bat_king", "The Bat King", Tier.BOSS, 60, 8, listOf(COLORS, COUNTING, NUMBERS, PATTERNS), Who.CRITTER,
             "A giant bat unfolds from the rafters, wearing a tiny crown. <critter>I am the Bat King! All the lanterns in the kingdom belong to me!",
             "The Bat King's crown slips down over his eyes. <critter>Oh dear. Maybe I should share.",

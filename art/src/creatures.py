@@ -150,6 +150,46 @@ def otter():
     return rig(defs, body, eyes(100, 140, 96, r=7.5), mouth(120, 132, 16))
 
 
+
+def beaver(brown="#8a5a34", crown=False, small=False):
+    """A round beaver with a big flat tail and two big front teeth. The Beaver Queen wears a crown woven from twigs with a
+    river-blue stone, and a necklace of river pebbles; her littlest kit is the same beaver, smaller and lighter."""
+    cream, tail = "#f1dcb8", dark(brown, 0.35)
+    defs = grad("vb", brown) + grad("vc", cream) + grad("vt", tail, "lin")
+    hatch = "".join(f'<path d="M{150 + k * 14} 176 L{178 + k * 14} 236" stroke="{dark(tail, 0.3)}" stroke-width="2.5" opacity="0.6"/>' for k in range(5))
+    hatch += "".join(f'<path d="M148 {190 + k * 14} L232 {178 + k * 14}" stroke="{dark(tail, 0.3)}" stroke-width="2.5" opacity="0.6"/>' for k in range(4))
+    body = (
+        # the tail lies flat behind, out to the right
+        f'<defs><clipPath id="vtail"><ellipse cx="192" cy="208" rx="44" ry="30" transform="rotate(-18 192 208)"/></clipPath></defs>'
+        f'<ellipse cx="192" cy="208" rx="44" ry="30" transform="rotate(-18 192 208)" fill="url(#vt)" {S(o)}/>'
+        f'<g clip-path="url(#vtail)">{hatch}</g>'
+        f'<path d="M72 244 C64 204 82 158 96 150 C110 142 130 142 144 150 C158 158 176 204 168 244 Z" fill="url(#vb)" {S(o)}/>'
+        f'<ellipse cx="120" cy="206" rx="34" ry="38" fill="url(#vc)" {S(mix(brown, "#000000", 0.4), 3)}/>'
+        f'<ellipse cx="94" cy="246" rx="18" ry="8" fill="{dark(brown, 0.2)}" {S(o, 3.5)}/><ellipse cx="146" cy="246" rx="18" ry="8" fill="{dark(brown, 0.2)}" {S(o, 3.5)}/>'
+        f'<ellipse cx="84" cy="196" rx="11" ry="15" fill="url(#vb)" {S(o, 3.5)}/><ellipse cx="156" cy="196" rx="11" ry="15" fill="url(#vb)" {S(o, 3.5)}/>'
+        f'<circle cx="74" cy="66" r="14" fill="url(#vb)" {S(o)}/><circle cx="166" cy="66" r="14" fill="url(#vb)" {S(o)}/>'
+        f'<circle cx="74" cy="66" r="6" fill="{dark(brown, 0.35)}"/><circle cx="166" cy="66" r="6" fill="{dark(brown, 0.35)}"/>'
+        f'<ellipse cx="120" cy="104" rx="58" ry="52" fill="url(#vb)" {S(o)}/>'
+        f'<ellipse cx="120" cy="128" rx="32" ry="22" fill="url(#vc)" {S(mix(brown, "#000000", 0.4), 3)}/>'
+        f'<ellipse cx="120" cy="116" rx="12" ry="8" fill="#2a1c14"/><ellipse cx="116" cy="114" rx="4" ry="2.4" fill="#fff" opacity="0.8"/>'
+        f'<path d="M98 124 L70 118 M98 130 L68 134 M142 124 L170 118 M142 130 L172 134" stroke="{o}" stroke-width="2.5" stroke-linecap="round"/>'
+        f'{cheeks(80, 160, 120, "#ff9a9a", 8, 5)}'
+    )
+    if crown:
+        # a necklace of river pebbles, and a crown of woven twigs with a blue river stone
+        body += "".join(f'<circle cx="{120 + 34 * math.cos(a):.0f}" cy="{162 + 8 * math.sin(a):.0f}" r="7" fill="{c}" {S(o, 2.5)}/>'
+                        for a, c in zip([0.2 + k * 0.45 for k in range(6)], ["#9ab8c8", "#c8b8a0", "#8fc0a8", "#b8a8c8", "#c8c0a0", "#9ab8c8"]))
+        body += (f'<path d="M80 62 L84 28 L98 48 L108 20 L120 44 L132 20 L142 48 L156 28 L160 62 C134 54 106 54 80 62 Z" fill="#b8844a" {S(o)}/>'
+                 f'<path d="M84 52 C108 46 132 46 156 52 M86 40 L96 58 M106 34 L112 54 M134 34 L128 54 M154 40 L144 58" stroke="#7a5228" stroke-width="3" fill="none" stroke-linecap="round"/>'
+                 f'<circle cx="120" cy="50" r="8" fill="#5ab4e0" {S(o, 2.5)}/><circle cx="117" cy="47" r="2.5" fill="#fff" opacity="0.9"/>')
+    teeth = f'<path d="M111 138 h18 v14 a3 3 0 0 1 -3 3 h-12 a3 3 0 0 1 -3 -3 Z" fill="#fffbe6" {S(o, 2.5)}/><path d="M120 138 v16" stroke="{o}" stroke-width="2"/>'
+    calm = f'<path d="M104 134 C110 140 116 140 120 136 C124 140 130 140 136 134" stroke="{o}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + teeth
+    talk = (f'<ellipse cx="120" cy="146" rx="15" ry="13" fill="#7a1f22" {S(o, 3)}/><ellipse cx="120" cy="153" rx="8" ry="4" fill="#ff7b8a"/>'
+            f'<path d="M104 134 C110 140 116 140 120 136 C124 140 130 140 136 134" stroke="{o}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + teeth)
+    return rig(defs, body, eyes(98, 142, 96, r=8), (calm, talk), tf=fit(0.78) if small else None,
+               shadow=ground_shadow(rx=48 if small else 70))
+
+
 # ================================================================ monsters
 
 def slime(c="#59c47a", crown=False):
@@ -241,8 +281,8 @@ def skeleton(captain=False):
         f'<ellipse cx="98" cy="98" rx="19" ry="21" fill="#2a1c24"/><ellipse cx="142" cy="98" rx="19" ry="21" fill="#2a1c24"/>'
         f'<path d="M120 112 L113 128 L127 128 Z" fill="#2a1c24"/>'
         f'<path d="M88 138 L152 138 L148 156 L92 156 Z" fill="url(#bn)" {S(o, 3.5)}/>'
-        + (f'<path d="M64 74 C80 36 160 36 176 74 C150 66 90 66 64 74 Z" fill="#2b3a5c" {S(o)}/><path d="M60 78 L180 78" {S("#2b3a5c", 8)}/><circle cx="120" cy="50" r="5" fill="#ffd34d"/>'
-           f'<path d="M84 80 L116 108" stroke="#1c1c24" stroke-width="5"/><ellipse cx="98" cy="98" rx="20" ry="21" fill="#1c1c24" {S(o, 2)}/>' if captain else '')
+        + (f'<path d="M64 66 C80 26 160 26 176 66 C150 58 90 58 64 66 Z" fill="#2b3a5c" {S(o)}/><path d="M60 70 L180 70" {S("#2b3a5c", 8)}/><circle cx="120" cy="42" r="5" fill="#ffd34d"/>'
+           f'<path d="M80 72 L116 108" stroke="#1c1c24" stroke-width="5"/><ellipse cx="98" cy="98" rx="20" ry="21" fill="#1c1c24" {S(o, 2)}/>' if captain else '')
     )
     teeth = "".join(f'<path d="M{x} 140 L{x} 154" stroke="{o}" stroke-width="3"/>' for x in range(96, 152, 8))
     calm = f'<path d="M90 146 L150 146" stroke="{o}" stroke-width="3.5"/>{teeth}'
@@ -361,6 +401,7 @@ MONSTERS = {
     "spider_queen": lambda: spider("#5a3a8a", "#ffd34d", crown=True),
     "bat_king": lambda: bat("#5a4a8a", crown=True),
     "inky_imp": lambda: imp(),
+    "beaver_queen": lambda: beaver(crown=True),
 }
 
 ANIMALS = {
@@ -371,6 +412,7 @@ ANIMALS = {
     "fern_fairy": fairy,
     "henrietta_hen": hen,
     "otto_otter": otter,
+    "kit_beaver": lambda: beaver("#b07a4a", small=True),
 }
 
 
