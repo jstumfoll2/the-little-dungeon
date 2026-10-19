@@ -69,7 +69,7 @@ fun QuestBookScreen(book: QuestBook, close: () -> Unit) {
     LaunchedEffect(page) { narrator.speak(pageSaid()) }
     val say: (List<Speech>) -> Unit = { lines ->
         sfx.play("tap")
-        scope.launch { narrator.speak(lines) }
+        scope.launch { narrator.speakAloud(lines) }
     }
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0x99000000)).clickable(NoRipple, null) {}) {
         val h = maxHeight
@@ -91,7 +91,7 @@ fun QuestBookScreen(book: QuestBook, close: () -> Unit) {
             }
         }
         RoundButton(Picto.LISTEN, Palette.Sky, h * 0.14f, Modifier.align(Alignment.TopStart).padding(10.dp)) {
-            scope.launch { narrator.speak(pageSaid()) }
+            scope.launch { narrator.speakAloud(pageSaid()) }
         }
         RoundButton(Picto.CHECK, Palette.Go, h * 0.16f, Modifier.align(Alignment.BottomEnd).padding(10.dp)) {
             narrator.stop()

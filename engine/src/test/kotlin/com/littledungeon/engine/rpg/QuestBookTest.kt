@@ -40,10 +40,14 @@ class QuestBookTest {
         val j = journey()
         j.setFlag("quest_recipe")
         assertEquals(listOf("bun_recipe"), j.questBook().quests.map { it.id })
+        assertTrue("A sneaky fox took it" in text(j), text(j))
+        j.setFlag("met:rascal_fox")
         assertTrue("Rascal the Fox has it" in text(j), text(j))
         j.setFlag("recipe_got")
         assertTrue("Bring it back to Baker Bun" in text(j), text(j))
         j.setFlag("bun_recipe_returned")
+        assertTrue("Maybe the mayor of Mossbrook" in text(j), text(j))
+        j.setFlag("met:mayor_tilly")
         assertTrue("Tell Mayor Tilly" in text(j), text(j))
         j.setFlag("tilly_thanked")
         val book = j.questBook()
@@ -119,12 +123,44 @@ class QuestBookTest {
         for (q in Content.quests) {
             assertTrue(Content.npc(q.giver) != null, "${q.id}: no person ${q.giver}")
             for (step in q.steps) assertTrue(step.at == null || step.at in places, "${q.id}: no place ${step.at}")
-            val conds = q.starts + q.done + q.steps.flatMap { it.until }
-            for (f in conds.flatMap { flags(it) }) assertTrue(f in set, "${q.id}: nothing sets the flag $f")
+            val conds = q.starts + q.done + q.steps.flatMap { it.until + it.knows }
+            // Meeting somebody is remembered by the engine itself, not by dialog.
+            for (f in conds.flatMap { flags(it) }.filterNot { it.startsWith("met:") }) assertTrue(f in set, "${q.id}: nothing sets the flag $f")
+            for (f in conds.flatMap { flags(it) }.filter { it.startsWith("met:") }) {
+                assertTrue(Content.npc(f.removePrefix("met:")) != null, "${q.id}: nobody to meet for $f")
+            }
         }
         for (arc in Content.arcs) {
             assertTrue(arc.summary.isNotBlank(), "${arc.id} has no summary for the quest book")
             for (clue in arc.clues) assertTrue(clue.flag in set, "${arc.id}: nothing sets the flag ${clue.flag}")
         }
+    }
+
+    @Test
+    fun `magic beans bought before meeting anybody who wants them are a mystery, not a spoiler`() {
+        val j = journey(Hero(bag = mapOf("magic_beans" to 1)))
+        val beans = j.questBook().quests.single { it.id == "ribbit_beans" }
+        val said = Voice.caption(beans.said)
+        assertTrue("We have magic beans! What are they for?" in said, said)
+        assertTrue("Ribbit" !in said && "Fishers' Dock" !in said, said)
+        assertTrue("Ribbit" !in beans.title, beans.title)
+        assertEquals(null, beans.giver)
+        assertEquals("magic_beans", beans.itemId)
+
+        j.setFlag("met:sir_ribbit")
+        val known = j.questBook().quests.single { it.id == "ribbit_beans" }
+        assertTrue("Bring them to Sir Ribbit, at Fishers' Dock." in Voice.caption(known.said))
+        assertEquals("sir_ribbit", known.giver)
+    }
+
+    @Test
+    fun `a quest waits until the hero has heard of the people in it`() {
+        // Befriending Bess before Captain Hob asked: Hob is a stranger, so there is nobody to tell yet.
+        assertTrue(journey().apply { setFlag("bess_befriended") }.questBook().quests.isEmpty())
+        // The story found out the bats are scared, but Pip has not been met.
+        assertTrue(journey(story = "thousand_lanterns").apply { setFlag("knows_bats_scared") }.questBook().quests.isEmpty())
+        // Grumble said he would take the boat back to Finn, and nothing more.
+        val boat = journey().apply { setFlag("grumble_befriended") }.questBook().quests.single()
+        assertEquals("Grumble is our friend now! He is taking the boat back to somebody called Finn.", Voice.caption(boat.said))
     }
 }

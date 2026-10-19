@@ -169,7 +169,7 @@ fun FinaleScreen(beat: Beat.Finale, vm: GameViewModel) {
         }
 
         RoundButton(Picto.LISTEN, Palette.Sky, h * 0.14f, Modifier.align(Alignment.TopStart).padding(10.dp)) {
-            scope.launch { narrator.speak(summary.lines) }
+            scope.launch { narrator.speakAloud(summary.lines) }
         }
         Row(
             Modifier.align(Alignment.BottomEnd).padding(end = w * 0.04f, bottom = h * 0.04f),

@@ -1367,3 +1367,19 @@ is always the newest. The old `latest` pre-release is deleted. Pushes to main qu
 **Why we made it:** Jason asked for a new release with each merge, so earlier builds stay downloadable and each has its changes listed.
 
 **What might cause us to change it:** Too many releases to scroll through; then release on a tag or a schedule instead.
+
+### 66. The voice can be turned off, and the quest book tells only what the hero knows
+
+**Status:** Accepted · 2026-10-19 · amends #64
+
+**Decision:** A speaker button on the camp screen turns the narrator's voice off and on, remembered on the phone. With the voice off the
+words still show, sound effects still play, each sentence stays on screen for a short reading time (tap to go on sooner), and choices
+show all their pictures at once instead of being named one by one. The listen buttons always read aloud. The voice is on by default,
+because the child this was made for can't read. In the quest book a step names a person only once the hero has met them (the engine's
+`met:` flag) or been told of them; until then it says a `guess` ("We have magic beans! What are they for?"), and a quest with a `secret`
+shows the item instead of the giver's picture and name. Bandit Bess's and Pip's quests start only once Captain Hob asked or Pip was met.
+
+**Why we made it:** Jason wants to share the game with children who read, for whom the narration slows everything down; and the quest
+book told him to take magic beans to Sir Ribbit before he had ever met him.
+
+**What might cause us to change it:** Reading children want a faster pace still; then shorten the reading time or add a speed choice.
