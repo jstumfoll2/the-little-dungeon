@@ -265,5 +265,94 @@ object CoreArcs {
         ),
     )
 
-    val all = listOf(missingPages, dragonPeak, thousandLanterns)
+    /**
+     * "The River That Stopped Singing": the river past Lantern Hollow and Whispering Falls has stopped, and the boats at
+     * Fishers' Dock sit in the mud. Up at the top of the river the Beaver Queen has built a dam too tall and slippery to
+     * climb; the Shell Horn calls the otters to help, and Captain Rattlebones keeps it in the Sunken Crypt. Her littlest
+     * kit, Kit, floated down to the dock on a log, and word of Kit (from Kit, or from Otto at the falls) spares a puzzle.
+     */
+    val quietRiver = Arc(
+        id = "quiet_river",
+        title = "The River That Stopped Singing",
+        lairId = "lair_dam",
+        keyDungeonId = "sunken_crypt",
+        keyItemId = "shell_horn",
+        bossId = "beaver_queen",
+        minChapter = 2,
+        setup = listOf(
+            "Something is wrong with the river! It has stopped running, and it has stopped singing its happy, bubbly song. At Fishers' Dock, the boats are stuck in the mud.",
+            "<elder>Little adventurer, the Storybook's page about the river is drying up, one word at a time. Something up the river is holding back the water.",
+            "<pet>Who could hold back a whole river?",
+            "<elder>Somebody very strong, or very busy. The way up the river is steep and slippery. The Shell Horn can call the otters to help you climb, and Captain Rattlebones keeps it in the Sunken Crypt.",
+        ),
+        returnSetup = listOf(
+            "The river has stopped singing again, and the boats are back in the mud!",
+            "<elder>Welcome back, little adventurer. Something is holding back the water once more. Please go up the river and find out why.",
+        ),
+        sealed = "A huge wall of sticks and mud stands across the river, much too tall and slippery to climb. <pet>A dam! We need the Shell Horn to call the otters. The Professor said it is in the Sunken Crypt.",
+        keyFound = "<pet>The Shell Horn! Hold it to your ear, and you can hear the river. Let's go up the river to the top!",
+        gateOpens = "You blow the Shell Horn. It sings like the sea, and a whole family of otters pops up out of the pond. They make a slide with their backs, and up you go, all the way to the top of the dam.",
+        ask = "What will you do about the Beaver Queen?",
+        fightLabel = "Challenge the Beaver Queen",
+        peaceLabel = "Talk to the Beaver Queen",
+        peaceSteps = listOf(
+            PeaceStep(
+                "count", "<granny>If you want to talk, help me count the shiny river gems I keep in my dam.", "<granny>That is right. Every one is still there.",
+                skippedBy = "knows_kit_safe",
+                skipNote = "<granny>You have news of my littlest kit? Kit is safe, with Finn? Oh, thank goodness. Then you are a friend of the family, and we do not need to count.",
+            ),
+            PeaceStep("pattern", "<granny>A good dam needs its sticks laid in a pattern, or it falls down. Which one comes next?", "<granny>Clever! You would make a fine beaver."),
+            PeaceStep("letters", "<granny>I am carving a sign for my lodge door. Help me find the right letter.", "<granny>There. Now everybody will know who lives here."),
+        ),
+        friendMeeting = "The Beaver Queen is sitting on top of the dam with a little wooden door in her paws. <granny>My friend! I want to make a door in my dam, so the river can always sing and my little ones can always swim. Will you help me build it? <pet>She is asking for help, not for a fight!",
+        friendSteps = listOf(
+            PeaceStep("count", "<granny>First, let us count the gems to put around the door.", "<granny>Just enough! It will sparkle."),
+            PeaceStep("pattern", "<granny>Now lay the sticks in a pattern, so the door is strong. Which one comes next?", "<granny>Strong as a rock."),
+            PeaceStep("colors", "<granny>And last, pick the right color for the door. My kits love bright colors.", "<granny>Lovely. The kits will love it."),
+        ),
+        friendEnd = "You open the little door together, and the river rushes out, laughing and singing all the way down to the lake. At Fishers' Dock, the boats float up out of the mud. <granny>Now the river can sing, and my kits can swim. <pet>Listen! The river is singing again!",
+        rivalMeeting = "The Beaver Queen slaps her big flat tail on the water. Splash! <granny>You again! The one who knocked a hole in my dam. I have built it twice as tall this time.",
+        moments = listOf(
+            Moment("whispering_falls", "The waterfall has gone very quiet. It is only whispering a tiny whisper now, and the pool is low. <pet>The river stopped singing."),
+            Moment(
+                "whispering_falls",
+                "Otto pops up out of the low pool. <critter>Hello! A few days ago, a baby beaver floated past me on a log, fast asleep. It went all the way down to Finn's dock. <pet>A baby beaver, all alone?",
+                effects = listOf(Effect.SetFlag("knows_kit_safe")),
+            ),
+            Moment("fishers_dock", "The lake is very low. The boats sit in the mud, and even the loud seagull is quiet. <pet>Where did all the water go?"),
+            Moment("lantern_hollow", "From far up the river, past the town, you hear tap, tap, tap, and the crunch of sticks. <pet>Somebody is building something big up there!"),
+            Moment(
+                "windy_pass", "The dragon from Dragon's Peak swoops low over the pass and points one big claw up the river. <dragon>Up there, little friends! <pet>Our dragon friend is showing us the way!",
+                needs = listOf(Cond.Flag("friend:big_dragon")),
+            ),
+            Moment(
+                "lantern_hollow", "Pip flutters down from a rooftop. <critter>I flew up the river last night, and I saw a beaver crying on top of a big wall of sticks. <pet>Crying? We should go and help.",
+                needs = listOf(Cond.Flag("friend:bat_king")),
+            ),
+            Moment("hermit_hill", "Hazel lets you look through the long brass telescope. Far up the river there is a great wall of sticks, and a wide, still pond behind it. <pet>A dam! That is where the water went."),
+            Moment("sunken_crypt", "Deep in the crypt, something hums like the sea whenever the wind blows. <pet>That must be the Shell Horn!"),
+        ),
+        variants = listOf(
+            Variant(
+                "lost_kit",
+                "On top of the dam sits a big beaver in a crown of twigs, looking down the dry river with tears in her eyes. <granny>Go away! I am the Beaver Queen. My littlest kit floated away down this river, and I will not let it take any more of my babies. Not one drop gets past my dam.",
+                "The Queen's crown falls in the pond, and a big hole opens in the dam. Whoosh! The river rushes down to the lake again. <granny>My dam! My poor dam. <narrator>But that evening, Finn rows up the river with Kit in his boat, and the Queen cries happy tears. <pet>Kit is home, and the river is singing.",
+                "You tell the Beaver Queen that Kit is safe and sound at Fishers' Dock, with Finn. <granny>Safe? My Kit is safe? <narrator>She opens the dam herself and rides the river all the way down to the lake, where Kit is waiting on the dock. <granny>My littlest kit! No more naps on logs. <pet>What a happy hug!",
+            ),
+            Variant(
+                "busy_builder",
+                "The Beaver Queen is busy building, with a stick in her teeth and mud on her nose. <granny>Hello, hello! Do you like my dam? It is the biggest dam in the whole kingdom, and I am going to make it even bigger! A river? What river?",
+                "You knock the top sticks off the dam, and the river spills over the top. Whoosh! <granny>Oh! So that is where the river was going. <narrator>She builds a smaller dam after that, and grumbles about it, but the river sings again. <pet>Small dams are nice too.",
+                "You show the Beaver Queen the dry riverbed, and the boats stuck in the mud far below. <granny>Oh, my whiskers. I was so busy building, I never looked down! <narrator>She builds a little door in her dam, and it is still the biggest dam in the kingdom. And Finn rows Kit home that very same day. <pet>The biggest dam, and a happy river!",
+            ),
+            Variant(
+                "swimming_pond",
+                "The Beaver Queen floats in her wide, still pond, with three little kits on her back. <granny>Shh! My kits are learning to swim. The river was too fast, and it carried my littlest one away. So I made it stop. Now the water is calm.",
+                "You pull out the biggest stick, and the dam lets the river go with a splash. <granny>My calm pond! Now where will my kits learn to swim? <narrator>Otto the Otter hears about it, and invites them all to swim in the quiet pool at Whispering Falls. <pet>Otto is a good teacher.",
+                "You tell the Queen about the quiet pool at Whispering Falls, where Otto the Otter teaches everybody to swim. <granny>A calm pool, and a swimming teacher? <narrator>She opens the dam, and the river sings again. The kits swim with Otto every morning, and Kit comes home on Finn's boat to join them. <pet>Splash, splash, hooray!",
+            ),
+        ),
+    )
+
+    val all = listOf(missingPages, dragonPeak, thousandLanterns, quietRiver)
 }

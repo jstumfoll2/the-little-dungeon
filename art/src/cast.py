@@ -172,14 +172,14 @@ def person(spec):
     if hat == "chef":
         parts.append(f'<path d="M84 {head_y - 36} C60 {head_y - 52} 72 {head_y - 90} 100 {head_y - 82} C104 {head_y - 104} 140 {head_y - 104} 142 {head_y - 82} C170 {head_y - 90} 180 {head_y - 52} 156 {head_y - 36} Z" fill="#fff" {st}/><rect x="84" y="{head_y - 40}" width="72" height="14" rx="5" fill="#f2f2f2" {st}/>')
     if hat == "cap":
-        parts.append(f'<path d="M74 {head_y - 20} C74 {head_y - 58} 166 {head_y - 58} 166 {head_y - 20} Z" fill="{hc}" {st}/><path d="M150 {head_y - 22} C176 {head_y - 20} 190 {head_y - 14} 192 {head_y - 8} C176 {head_y - 8} 156 {head_y - 12} 146 {head_y - 18} Z" fill="{dark(hc, 0.15)}" {S(o, 3.5)}/>')
+        parts.append(f'<path d="M70 {head_y - 18} C68 {head_y - 92} 172 {head_y - 92} 170 {head_y - 18} Z" fill="{hc}" {st}/><path d="M150 {head_y - 22} C176 {head_y - 20} 190 {head_y - 14} 192 {head_y - 8} C176 {head_y - 8} 156 {head_y - 12} 146 {head_y - 18} Z" fill="{dark(hc, 0.15)}" {S(o, 3.5)}/>')
     if hat == "straw":
-        parts.append(f'<ellipse cx="120" cy="{head_y - 24}" rx="76" ry="16" fill="#e8c46a" {st}/><path d="M80 {head_y - 26} C80 {head_y - 62} 160 {head_y - 62} 160 {head_y - 26} Z" fill="#f0d27f" {st}/><path d="M80 {head_y - 32} L160 {head_y - 32}" stroke="{hc}" stroke-width="7"/>')
+        parts.append(f'<ellipse cx="120" cy="{head_y - 24}" rx="76" ry="16" fill="#e8c46a" {st}/><path d="M80 {head_y - 26} C80 {head_y - 74} 160 {head_y - 74} 160 {head_y - 26} Z" fill="#f0d27f" {st}/><path d="M80 {head_y - 32} L160 {head_y - 32}" stroke="{hc}" stroke-width="7"/>')
     if hat == "helmet":
-        parts.append(f'<path d="M72 {head_y - 8} C70 {head_y - 62} 170 {head_y - 62} 168 {head_y - 8} L152 {head_y - 14} L88 {head_y - 14} Z" fill="url(#steel)" {st}/><path d="M120 {head_y - 60} L120 {head_y - 16}" stroke="#7d8a98" stroke-width="5"/><circle cx="120" cy="{head_y - 64}" r="7" fill="#e23b3b" {S(o, 3)}/>')
+        parts.append(f'<path d="M70 {head_y - 8} C68 {head_y - 82} 172 {head_y - 82} 170 {head_y - 8} L152 {head_y - 14} L88 {head_y - 14} Z" fill="url(#steel)" {st}/><path d="M120 {head_y - 64} L120 {head_y - 16}" stroke="#7d8a98" stroke-width="5"/><circle cx="120" cy="{head_y - 70}" r="7" fill="#e23b3b" {S(o, 3)}/>')
         defs += '<linearGradient id="steel" x1="0.1" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#f4f8fb"/><stop offset="0.45" stop-color="#c3ced8"/><stop offset="1" stop-color="#8794a2"/></linearGradient>'
     if hat == "turban":
-        parts.append(f'<path d="M72 {head_y - 10} C66 {head_y - 62} 174 {head_y - 62} 168 {head_y - 10} C150 {head_y - 28} 90 {head_y - 28} 72 {head_y - 10} Z" fill="{hc}" {st}/><path d="M86 {head_y - 34} C110 {head_y - 20} 140 {head_y - 20} 156 {head_y - 36}" stroke="{light(hc, 0.4)}" stroke-width="5" fill="none"/><circle cx="120" cy="{head_y - 40}" r="8" fill="#ffd34d" {S(o, 3)}/>')
+        parts.append(f'<path d="M68 {head_y - 10} C60 {head_y - 90} 180 {head_y - 90} 172 {head_y - 10} C150 {head_y - 28} 90 {head_y - 28} 72 {head_y - 10} Z" fill="{hc}" {st}/><path d="M86 {head_y - 34} C110 {head_y - 20} 140 {head_y - 20} 156 {head_y - 36}" stroke="{light(hc, 0.4)}" stroke-width="5" fill="none"/><circle cx="120" cy="{head_y - 44}" r="8" fill="#ffd34d" {S(o, 3)}/>')
     if hat == "hood":
         parts.append(f'<path d="M66 {head_y + 20} C54 {head_y - 50} 90 {head_y - 70} 120 {head_y - 70} C150 {head_y - 70} 186 {head_y - 50} 174 {head_y + 20} C162 {head_y - 20} 146 {head_y - 36} 120 {head_y - 36} C94 {head_y - 36} 78 {head_y - 20} 66 {head_y + 20} Z" fill="{hc}" {st}/>')
     if hat == "wizard":
@@ -189,7 +189,7 @@ def person(spec):
     if hat == "tophat":
         parts.append(f'<ellipse cx="120" cy="{head_y - 30}" rx="62" ry="12" fill="#2b2433" {st}/><path d="M86 {head_y - 32} L90 {head_y - 96} C110 {head_y - 104} 130 {head_y - 104} 150 {head_y - 96} L154 {head_y - 32} Z" fill="#3a3046" {st}/><path d="M88 {head_y - 46} L152 {head_y - 46}" stroke="#a8301f" stroke-width="9"/>')
     if hat == "bandana":
-        parts.append(f'<path d="M72 {head_y - 8} C70 {head_y - 56} 170 {head_y - 56} 168 {head_y - 8} C150 {head_y - 24} 90 {head_y - 24} 72 {head_y - 8} Z" fill="{hc}" {st}/><circle cx="96" cy="{head_y - 30}" r="3.5" fill="#fff"/><circle cx="120" cy="{head_y - 38}" r="3.5" fill="#fff"/><circle cx="144" cy="{head_y - 30}" r="3.5" fill="#fff"/><path d="M166 {head_y - 20} C190 {head_y - 28} 198 {head_y - 8} 190 {head_y + 4} C182 {head_y - 4} 176 {head_y - 8} 166 {head_y - 10} Z" fill="{hc}" {S(o, 3.5)}/>')
+        parts.append(f'<path d="M70 {head_y - 8} C68 {head_y - 72} 172 {head_y - 72} 170 {head_y - 8} C150 {head_y - 24} 90 {head_y - 24} 72 {head_y - 8} Z" fill="{hc}" {st}/><circle cx="96" cy="{head_y - 30}" r="3.5" fill="#fff"/><circle cx="120" cy="{head_y - 38}" r="3.5" fill="#fff"/><circle cx="144" cy="{head_y - 30}" r="3.5" fill="#fff"/><path d="M166 {head_y - 20} C190 {head_y - 28} 198 {head_y - 8} 190 {head_y + 4} C182 {head_y - 4} 176 {head_y - 8} 166 {head_y - 10} Z" fill="{hc}" {S(o, 3.5)}/>')
     if hat == "crown":
         parts.append(f'<path d="M84 {head_y - 34} L88 {head_y - 66} L104 {head_y - 48} L120 {head_y - 72} L136 {head_y - 48} L152 {head_y - 66} L156 {head_y - 34} Z" fill="#ffd34d" {st}/><circle cx="120" cy="{head_y - 62}" r="5" fill="#e23b3b" {S(o, 2.5)}/>')
     if hat == "flowers":

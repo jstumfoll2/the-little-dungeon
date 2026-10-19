@@ -1227,6 +1227,9 @@ def scene_goblin_den():
     patches = ["#c4513f", "#e0a83a", "#4f8ab5", "#6aa05a", "#b5778f", "#d9c38a"]
     hx0, hx1, hy = 10, 370, 330
     d.add(f'<path d="M{hx0} {hy} L{hx0 - 30} {hy - 60} M{hx1} {hy} L{hx1 + 20} {hy - 70}" stroke="#7a5a3a" stroke-width="6"/>')
+    # the ropes are tied to wooden pegs knocked into the wall
+    for px, py in [(hx0 - 30, hy - 60), (hx1 + 20, hy - 70)]:
+        d.add(f'<rect x="{px - 10}" y="{py - 12}" width="34" height="18" rx="6" fill="#8a5a32" stroke="{INK}" stroke-width="3"/><circle cx="{px}" cy="{py}" r="7" fill="#6a4226" stroke="{INK}" stroke-width="2"/>')
     quilt = ""
     for i in range(6):
         for j in range(2):

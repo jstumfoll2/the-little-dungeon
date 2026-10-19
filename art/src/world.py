@@ -55,10 +55,13 @@ def frame_trees(d, left=True, right=True, pal=("#4f7d3e", "#66974b", "#86b25c"))
         d.add(tree(d, d.r, 1960, 980, 1.7, pal))
 
 
-def flowers(d, n=34, y0=820):
+def flowers(d, n=34, y0=820, dry=None):
+    """[dry] (x, y) -> bool keeps flowers off water."""
     for _ in range(n):
         x, y = d.r.uniform(0, W), d.r.uniform(y0, 1070)
         if 720 < x < 1880 and y < 1000:
+            continue
+        if dry and not dry(x, y):
             continue
         col = d.r.choice(["#ffffff", "#ffd36a", "#ff9fb8", "#c7a6ff"])
         d.add(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="7" fill="{col}" stroke="{INK}" stroke-width="1.5" stroke-opacity="0.4"/><circle cx="{x:.0f}" cy="{y:.0f}" r="2.5" fill="#e09a2a"/>')
@@ -95,7 +98,33 @@ def path_ribbon(d, pts, wid, col="#e6c98b", edge="#b8975e"):
 def river(d, pts, wid, col="#6fc3e6", hi="#bfeaf7"):
     d.add(f'<path d="{smooth(pts, closed=False)}" fill="none" stroke="#3f8fb8" stroke-width="{wid + 8}" stroke-linecap="round"/>')
     d.add(f'<path d="{smooth(pts, closed=False)}" fill="none" stroke="{col}" stroke-width="{wid}" stroke-linecap="round"/>')
-    d.add(f'<path d="{smooth(pts, closed=False)}" fill="none" stroke="{hi}" stroke-width="{max(3, wid // 8)}" stroke-linecap="round" stroke-dasharray="26 40" opacity="0.8"/>')
+    # a few soft ripples scattered on the water (a dashed centre line read as a road marking)
+    if wid >= 60:
+        r = d.r
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            for _ in range(2):
+                t = r.uniform(0.15, 0.85)
+                x, y = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t + r.uniform(-0.25, 0.25) * wid
+                L = r.uniform(26, 44)
+                d.add(f'<path d="M{x - L:.0f} {y:.0f} q{L / 2:.0f} -10 {L:.0f} 0 q{L / 2:.0f} 10 {L:.0f} 0" fill="none" stroke="{hi}" stroke-width="4" stroke-linecap="round" opacity="0.7"/>')
+
+
+def river_toward(d, left, right, col="#6fc3e6", hi="#bfeaf7", horizon=None):
+    """A river seen from its bank, flowing from the far hills down to the bottom edge: [left] and [right] are its
+    banks from far to near. Bridges can cross it with both ends on dry land. [horizon] cuts its far end flat
+    where the ground meets the hills, so it runs off into the distance instead of ending in a round cap."""
+    body = f'<path d="{smooth(left + list(reversed(right)))}" fill="{col}" stroke="#3f8fb8" stroke-width="8" stroke-linejoin="round"/>'
+    if horizon is not None:
+        d.add(f'<defs><clipPath id="farbank"><rect x="0" y="{horizon}" width="{W}" height="{H}"/></clipPath></defs>')
+        body = f'<g clip-path="url(#farbank)">{body}</g>'
+    d.add(body)
+    r = d.r
+    for (lx, ly), (rx, ry) in zip(left, right):
+        for _ in range(2):
+            t = r.uniform(0.2, 0.8)
+            x, y = lx + (rx - lx) * t, (ly + ry) / 2 + r.uniform(-20, 20)
+            L = 12 + (y - left[0][1]) * 0.06
+            d.add(f'<path d="M{x - L:.0f} {y:.0f} q{L / 2:.0f} -8 {L:.0f} 0 q{L / 2:.0f} 8 {L:.0f} 0" fill="none" stroke="{hi}" stroke-width="4" stroke-linecap="round" opacity="0.75"/>')
 
 
 def finish(d, v=0.22):
@@ -125,12 +154,15 @@ def scene_world_map():
     for k in range(4):
         d.add(f'<path d="M{1200 + k * 120} {930 + (k % 2) * 30} q30 -12 60 0" stroke="#bfeaf7" stroke-width="4" fill="none" stroke-linecap="round"/>')
     # rivers
-    river(d, [(300, 40), (330, 250), (520, 420), (580, 630), (700, 760), (780, 960)], 34)
+    # the west river runs down through the woods and into the lake, like the east one
+    river(d, [(300, 40), (330, 250), (520, 420), (580, 630), (700, 790), (860, 850), (1000, 895), (1110, 935)], 34)
     river(d, [(1200, 30), (1230, 300), (1280, 560), (1330, 780), (1380, 900)], 28)
     # forests
     for cx, cy, rx, ry, n in [(300, 880, 280, 90, 26), (240, 560, 160, 220, 18), (700, 330, 150, 80, 12), (1130, 140, 220, 70, 14), (1000, 800, 160, 70, 12)]:
         for _ in range(n):
             x, y = cx + r.uniform(-rx, rx), cy + r.uniform(-ry, ry)
+            if abs(x - 1212) < 110 and abs(y - 110) < 90:
+                continue  # keep the Beaver Dam clear
             d.add(pine(x, y, r.uniform(0.35, 0.55), "#3f7a4a", "#2f6040"))
     # swamp
     for _ in range(14):
@@ -138,7 +170,7 @@ def scene_world_map():
         d.add(f'<ellipse cx="{x:.0f}" cy="{y:.0f}" rx="{r.uniform(24, 60):.0f}" ry="{r.uniform(10, 22):.0f}" fill="#6a8a4a" opacity="0.8"/>')
         d.add(f'<ellipse cx="{x + 4:.0f}" cy="{y:.0f}" rx="{r.uniform(10, 24):.0f}" ry="5" fill="#4f7a58"/>')
     # hills
-    for cx, cy in [(780, 240), (180, 330), (860, 900), (560, 690)]:
+    for cx, cy in [(780, 240), (180, 330), (760, 990), (560, 690)]:
         for k in range(3):
             d.add(f'<path d="M{cx - 70 + k * 50} {cy + 20} q30 -60 70 0 Z" fill="#a9c76a" stroke="#7a9a48" stroke-width="3" opacity="0.9"/>')
     # mountains (right side) with the dragon's peak
@@ -161,6 +193,13 @@ def scene_world_map():
     d.add(f'<path d="M{bx - 9} {bb - 50} v-22 a9 9 0 0 1 18 0 v22 Z" fill="#2a2640"/><path d="M{bx - 6} {bb - 56} q6 -12 12 0 Z" fill="#e8c46a"/>')
     for k, (vx, vy) in enumerate([(bx - 40, bb - 120), (bx + 36, bb - 132), (bx + 52, bb - 104)]):
         d.add(f'<path d="M{vx - 10} {vy} q5 -6 10 0 q5 -6 10 0" fill="none" stroke="#3a3046" stroke-width="3" stroke-linecap="round"/>')
+    # the Beaver Dam: a wall of sticks across the top of the east river, with its pond and lodge behind it
+    vx, vy = 1212, 138
+    d.add(f'<ellipse cx="{vx - 6}" cy="{vy - 44}" rx="70" ry="30" fill="#3f8fb8"/><ellipse cx="{vx - 6}" cy="{vy - 46}" rx="62" ry="24" fill="#6fc3e6"/>')
+    d.add(f'<path d="M{vx + 6} {vy - 44} q16 -34 32 0 Z" fill="#8a6a48" stroke="{INK}" stroke-width="3"/>')
+    d.add(f'<rect x="{vx - 50}" y="{vy - 22}" width="100" height="22" rx="10" fill="#7a5a3c" stroke="{INK}" stroke-width="4"/>')
+    for k in range(5):
+        d.add(f'<path d="M{vx - 44 + k * 20} {vy - 16 + (k % 2) * 6} h22" stroke="#a07a50" stroke-width="4" stroke-linecap="round"/>')
     # compass
     cx, cy = 150, 910
     d.add(f'<circle cx="{cx}" cy="{cy}" r="70" fill="#f6ead0" stroke="{INK}" stroke-width="5" opacity="0.92"/>')
@@ -222,12 +261,19 @@ def scene_road(kind):
         hills(d, 580, "#bcd27a", "#9ab85e", 50, 1)
         ground(d, 740)
         river(d, [(-60, 900), (500, 820), (1000, 790), (1500, 830), (1990, 790)], 150)
-        d.add(f'<path d="M820 740 Q960 650 1100 740 L1100 790 L820 790 Z" fill="#b8b2a0" stroke="{INK}" stroke-width="4" stroke-opacity="0.5"/>')
-        for x in (900, 1000, 1080):
-            d.add(f'<ellipse cx="{x}" cy="{930 if x != 1000 else 960}" rx="46" ry="20" fill="#9a9aa4" stroke="{INK}" stroke-width="3" stroke-opacity="0.5"/>')
+        # stepping stones from the near bank to the far one, smaller as they go away
+        for x, y, rx in [(958, 884, 48), (1010, 846, 42), (962, 810, 36), (1006, 778, 32), (966, 748, 28), (1000, 722, 24)]:
+            d.add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx * 0.42:.0f}" fill="#9a9aa4" stroke="{INK}" stroke-width="3" stroke-opacity="0.5"/>')
         d.add(cattails(d.r, 120, 1000, 6) if False else "")
         frame_trees(d)
-        flowers(d)
+        bank = [(-60, 900), (500, 820), (1000, 790), (1500, 830), (1990, 790)]
+
+        def dry(x, y):  # the river is 150 wide around its centre line
+            for (ax, ay), (bx, by) in zip(bank, bank[1:]):
+                if ax <= x <= bx:
+                    return abs(y - (ay + (by - ay) * (x - ax) / (bx - ax))) > 105
+            return True
+        flowers(d, dry=dry)
     else:  # swamp
         sky(d, "gloom")
         for cx, s in [(200, 1.3), (900, 0.9), (1500, 1.2), (1750, 1.0)]:
@@ -305,25 +351,35 @@ def scene_old_bridge():
     d = Doc(923); r = d.r
     sky(d, "day", (1500, 200))
     hills(d, 600, "#bcd27a", "#9ab85e", 50, 1)
-    ground(d, 760)
-    river(d, [(-60, 860), (500, 840), (1000, 850), (1500, 840), (1990, 860)], 240)
-    # bridge
-    span = "M560 780 Q960 600 1360 780 L1360 840 L1280 840 Q960 720 640 840 L560 840 Z"
+    ground(d, 660)
+    left = [(925, 600), (900, 670), (860, 720), (800, 820), (700, 950), (540, 1100)]
+    right = [(995, 600), (1020, 670), (1060, 720), (1120, 820), (1220, 950), (1380, 1100)]
+    river_toward(d, left, right, horizon=668)
+    # the arch: its feet stand on the grass either side of the water
+    span = "M560 830 Q960 640 1360 830 L1360 880 L1230 880 Q960 730 690 880 L560 880 Z"
     d.add(f'<defs><clipPath id="span"><path d="{span}"/></clipPath></defs>')
+    d.add(f'<ellipse cx="960" cy="884" rx="440" ry="16" fill="#2f4a22" opacity="0.18"/>')
     d.add(f'<path d="{span}" fill="#b8b2a0"/>')
-    d.add('<g clip-path="url(#span)">' + stone_blocks(r, 560, 650, 1360, 840, 70, 34, "#b8b2a0", "#d2ccba", "#8f8a78", 0.5) + '</g>')
+    d.add('<g clip-path="url(#span)">' + stone_blocks(r, 560, 700, 1360, 880, 70, 34, "#b8b2a0", "#d2ccba", "#8f8a78", 0.5) + '</g>')
     d.add(f'<path d="{span}" fill="none" stroke="{INK}" stroke-width="5" stroke-opacity="0.55"/>')
-    # moss along the top of the arch
     for x in range(620, 1320, 80):
         t = (x - 560) / 800
-        y = (1 - t) ** 2 * 780 + 2 * (1 - t) * t * 600 + t * t * 780
+        y = (1 - t) ** 2 * 830 + 2 * (1 - t) * t * 640 + t * t * 830
         d.add(f'<ellipse cx="{x}" cy="{y + 4:.0f}" rx="24" ry="10" fill="#6f9a45" opacity="0.8"/>')
-    # its reflection in the water
-    d.add(f'<path d="M640 846 Q960 960 1280 846" fill="none" stroke="#b8b2a0" stroke-width="10" opacity="0.35"/>')
-    for x in (600, 1320):
-        d.add(f'<rect x="{x}" y="640" width="40" height="150" fill="#a8a290" stroke="{INK}" stroke-width="4" stroke-opacity="0.5"/>')
-    d.add(cattails(r, 160, 1000, 6)); d.add(cattails(r, 1760, 1010, 6))
+    for x in (580, 1300):
+        d.add(f'<rect x="{x}" y="740" width="40" height="140" fill="#a8a290" stroke="{INK}" stroke-width="4" stroke-opacity="0.5"/>')
+    # the arch's reflection in the water under it
+    d.add(f'<path d="M770 900 Q960 990 1150 900" fill="none" stroke="#9ad2ea" stroke-width="8" opacity="0.6"/>')
+    d.add(cattails(r, 520, 1010, 5)); d.add(cattails(r, 1420, 1020, 5))
     frame_trees(d)
+
+    def dry(x, y):  # outside the banks, with a little room for the flower
+        for (ax, ay), (bx, by), (cx, cy), (ex, ey) in zip(left, left[1:], right, right[1:]):
+            if ay <= y <= by:
+                t = (y - ay) / (by - ay)
+                return not (ax + (bx - ax) * t - 30 < x < cx + (ex - cx) * t + 30)
+        return True
+    flowers(d, 20, 900, dry)
     return finish(d)
 
 
@@ -350,11 +406,12 @@ def scene_hermit_hill():
     hills(d, 640, "#bcd27a", "#9ab85e", 40, 1)
     d.add(f'<path d="M900 1000 Q1300 400 1700 460 Q1900 520 1990 1000 Z" fill="{d.lin([(0, "#a8d070"), (1, "#7fae52")])}" stroke="{INK}" stroke-width="4" stroke-opacity="0.3"/>')
     d.add(f'<circle cx="1480" cy="760" r="70" fill="#7a4e2e" stroke="{INK}" stroke-width="6"/><circle cx="1480" cy="760" r="52" fill="#a8693c"/><circle cx="1500" cy="765" r="7" fill="#f6d36a"/>')
-    d.add(f'<path d="M1480 820 Q1300 900 1000 1000" fill="none" stroke="#e6c98b" stroke-width="60" stroke-linecap="round"/>')
     d.add(f'<path d="M1585 560 v-60 h26 v60 Z" fill="#8a7a6a" stroke="{INK}" stroke-width="3"/>')
     for k in range(4):
         d.add(f'<circle cx="{1600 - k * 6}" cy="{480 - k * 40}" r="{14 + k * 5}" fill="#fff" opacity="{0.8 - k * 0.15:.2f}"/>')
     ground(d, 900, "#a9cf6c", "#5e9440", 10)
+    # the path runs from the round door down the hill and out across the meadow to the viewer
+    path_ribbon(d, [(1470, 852), (1400, 890), (1250, 960), (1120, 1120)], 56)
     for x in (200, 440, 640):
         d.add(f'<path d="M{x} 1000 q-6 -90 10 -160" stroke="#5f9a45" stroke-width="5" fill="none"/>')
         d.add(f'<circle cx="{x + 10}" cy="836" r="22" fill="#ffffff" opacity="0.75" stroke="#d8d8c8" stroke-width="2"/><circle cx="{x + 10}" cy="836" r="5" fill="#c8b880"/>')
@@ -397,15 +454,26 @@ def scene_pennywhistle():
 def scene_gloomwood_mine():
     d = Doc(927); r = d.r
     sky(d, "gloom")
-    mountain(d, 1300, 760, 1400, 560, ("#9a90ac", "#6f6684"), snow=False)
+    mountain(d, 1300, 800, 1400, 600, ("#9a90ac", "#6f6684"), snow=False)
     ground(d, 790, "#8a8a6a", "#5a5a48", 20)
     d.add(f'<path d="M1180 810 L1180 640 Q1300 560 1420 640 L1420 810 Z" fill="#1c1a24" stroke="#6b4a32" stroke-width="16"/>')
     d.add(f'<path d="M1160 810 L1160 630 L1440 630 L1440 810" fill="none" stroke="#7a5230" stroke-width="22"/>')
     d.add(glow(d, 1300, 740, 140, "#ffd27a", 0.4))
     for x, y in [(1305, 770), (1215, 790)]:
         d.add(f'<path d="M{x - 40} {y + 30} h110" stroke="#5a4a3a" stroke-width="6"/>')
-    d.add(f'<path d="M700 1000 Q1000 900 1250 810" fill="none" stroke="#a89a82" stroke-width="10"/><path d="M760 1040 Q1050 940 1320 830" fill="none" stroke="#a89a82" stroke-width="10"/>')
-    d.add(f'<path d="M520 960 l40 -30 h70 l30 30 Z" fill="#6a5a4a" stroke="{INK}" stroke-width="4"/><circle cx="560" cy="965" r="18" fill="#4a4a54"/><circle cx="640" cy="965" r="18" fill="#4a4a54"/>')
+    # the cart track comes out of the mine towards the viewer, its rails closing together into the dark
+    (la, lb), (ra, rb), y0, y1 = (1270, 640), (1330, 980), 812, 1090
+    for k in range(9):
+        t = (k / 8) ** 1.4
+        y = y0 + (y1 - y0) * t
+        d.add(f'<path d="M{la + (lb - la) * t - 14 - 20 * t:.0f} {y:.0f} H{ra + (rb - ra) * t + 14 + 20 * t:.0f}" stroke="#5a4636" stroke-width="{6 + 12 * t:.0f}" stroke-linecap="round"/>')
+    d.add(f'<path d="M{la} {y0} L{lb} {y1} M{ra} {y0} L{rb} {y1}" stroke="#a89a82" stroke-width="10" stroke-linecap="round"/>')
+    # the mine cart, standing on the rails
+    t = 0.55; cl, cr, cy = la + (lb - la) * t, ra + (rb - ra) * t, y0 + (y1 - y0) * t
+    d.add(f'<path d="M{cl - 24:.0f} {cy - 70:.0f} H{cr + 24:.0f} L{cr:.0f} {cy - 8:.0f} H{cl:.0f} Z" fill="#6a5a4a" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>')
+    d.add(f'<path d="M{cl - 24:.0f} {cy - 70:.0f} H{cr + 24:.0f}" stroke="#4a3a2e" stroke-width="10" stroke-linecap="round"/>')
+    for x in (cl + 16, cr - 16):
+        d.add(f'<circle cx="{x:.0f}" cy="{cy:.0f}" r="20" fill="#4a4a54" stroke="{INK}" stroke-width="4"/><circle cx="{x:.0f}" cy="{cy:.0f}" r="6" fill="#8a8a94"/>')
     for x in (1500, 1600, 1760):
         d.add(crystal_cluster(d, r, x, 800, 0.5, [("#9fe0ff", "#e8f8ff", "#4a7aa8")], n=3, spread=40, glow_op=0.3) if False else "")
     d.add(pine(120, 1000, 2.0, "#4a6a58", "#385046"))
@@ -465,11 +533,16 @@ def scene_whispering_falls():
         d.add(f'<path d="M{1440 + k * 22} 130 Q{1450 + k * 24} 420 {1420 + k * 36} 740" stroke="#fff" stroke-width="4" fill="none" opacity="0.8"/>')
     d.add(glow(d, 1500, 760, 220, "#ffffff", 0.7, ry=60))
     ground(d, 790, "#8fc060", "#4f8a45", 10)
+    # the fall keeps going over the grass bank and spills into the pool
+    d.add(f'<path d="M1380 750 L1620 750 Q1640 800 1660 850 L1340 850 Q1360 800 1380 750 Z" fill="#9fd8f0"/>')
     pool = blob_pts(r, 1500, 880, 420, 90, 12, 0.08)
     d.add(f'<path d="{smooth(pool)}" fill="#3f8fb8"/>')
     d.add(f'<path d="{smooth([(x * 0.95 + 75, y * 0.92 + 70) for x, y in pool])}" fill="#7acbe8"/>')
     for x, y, rx in [(1250, 900, 36), (1740, 880, 30), (1500, 960, 40)]:
         d.add(lily_pad(d, x, y, rx, False))
+    # white foam where the fall lands
+    for k in range(7):
+        d.add(f'<ellipse cx="{1370 + k * 43}" cy="{846 + (k % 2) * 8}" rx="{34 - (k % 3) * 5}" ry="14" fill="#ffffff" opacity="0.85"/>')
     d.add(f'<path d="M1500 770 q-40 -50 -10 -100" stroke="#fff" stroke-width="3" fill="none" opacity="0.6"/>')
     d.add(tree(d, r, -20, 1000, 1.8)); flowers(d, 22, 900)
     return finish(d)
@@ -590,6 +663,8 @@ def scene_lair_belfry():
     d.add(f'<path d="M820 860 Q980 520 1360 500 Q1720 520 1900 860 Z" fill="{d.lin([(0, "#9a8f88"), (1, "#6a605a")])}" stroke="{INK}" stroke-width="4" stroke-opacity="0.4"/>')
     for x, y, rx in [(980, 760, 60), (1700, 780, 70), (1240, 700, 40), (1560, 690, 46)]:
         d.add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx * 0.55:.0f}" fill="#7f746d" stroke="{INK}" stroke-width="3" stroke-opacity="0.35"/>')
+    # the path climbs the hill in a zig-zag to the tower door
+    path_ribbon(d, [(1320, 880), (1200, 790), (1420, 700), (1360, 612)], 56, "#cdbfa0", "#8a7a5a")
     # the tower: stone blocks clipped to its walls, then the outline on top
     tx, base, tw = 1360, 610, 260
     x0, y0 = tx - tw / 2, base - 400
@@ -618,12 +693,64 @@ def scene_lair_belfry():
     return finish(d, 0.32)
 
 
+def scene_lair_dam():
+    """The Beaver Dam: a great wall of sticks across the river, high in the hills. Behind it the water is a wide still
+    pond with the Beaver Queen's lodge in it; in front of it the riverbed is nearly dry, with only a trickle getting through."""
+    d = Doc(937); r = d.r
+    sky(d, "day", (1560, 190))
+    hills(d, 520, "#bcd27a", "#9ab85e", 40, 1)
+    # the pond held back behind the dam
+    d.add(f'<path d="M180 640 Q300 560 960 556 Q1620 560 1740 640 Z" fill="#3f8fb8"/>')
+    d.add(f'<path d="M220 640 Q330 572 960 568 Q1590 572 1700 640 Z" fill="#7acbe8"/>')
+    for x, y in [(520, 600), (760, 586), (1500, 604)]:
+        d.add(f'<path d="M{x} {y} q20 -8 40 0 q20 8 40 0" stroke="#bfeaf7" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.8"/>')
+    # the lodge: a dome of sticks and mud standing in the pond
+    lx, ly = 1260, 616
+    d.add(f'<path d="M{lx - 130} {ly} Q{lx - 120} {ly - 120} {lx} {ly - 130} Q{lx + 120} {ly - 120} {lx + 130} {ly} Z" fill="#8a6a48" stroke="{INK}" stroke-width="5" stroke-opacity="0.5"/>')
+    for k in range(16):
+        a = r.uniform(-1.3, 1.3); rr = r.uniform(30, 110)
+        x, y = lx + rr * math.sin(a), ly - 10 - r.uniform(10, 100) * math.cos(a * 0.8)
+        L = r.uniform(40, 80); t = r.uniform(-0.6, 0.6)
+        d.add(f'<path d="M{x - L / 2 * math.cos(t):.0f} {y - L / 2 * math.sin(t):.0f} L{x + L / 2 * math.cos(t):.0f} {y + L / 2 * math.sin(t):.0f}" stroke="#5f4630" stroke-width="7" stroke-linecap="round"/>')
+    d.add(f'<path d="M{lx - 26} {ly} v-30 a26 26 0 0 1 52 0 v30 Z" fill="#2a1e16"/>')
+    ground(d, 760, "#a9cf6c", "#5e9440", 16)
+    # the riverbed below the dam is nearly dry: pebbles, a few puddles, and a thin trickle
+    bed = [(720, 744), (1200, 744), (1340, 860), (1520, 1100), (400, 1100), (600, 860)]
+    d.add(f'<path d="{smooth(bed)}" fill="#d2c094" stroke="#a8946a" stroke-width="6"/>')
+    d.add(f'<path d="M960 760 C940 820 990 880 950 950 C920 1010 980 1050 960 1100" stroke="#7acbe8" stroke-width="16" fill="none" stroke-linecap="round"/>')
+    for x, y, rx in [(760, 900, 60), (1180, 960, 70), (880, 1030, 44), (1080, 840, 40)]:
+        d.add(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx * 0.3:.0f}" fill="#7acbe8" stroke="#3f8fb8" stroke-width="4"/>')
+    for _ in range(26):
+        x, y = r.uniform(560, 1360), r.uniform(790, 1080)
+        if abs(x - 960) < 50:
+            continue
+        rx = r.uniform(8, 18) * (0.6 + (y - 760) / 600)
+        d.add(f'<ellipse cx="{x:.0f}" cy="{y:.0f}" rx="{rx:.0f}" ry="{rx * 0.6:.0f}" fill="#a8a29a" stroke="{INK}" stroke-width="2" stroke-opacity="0.4"/>')
+    # the dam: a long heap of sticks and mud, end to end across the river
+    d.add(f'<path d="M260 760 Q300 640 420 636 L1500 636 Q1620 640 1660 760 Z" fill="#7a5a3c" stroke="{INK}" stroke-width="5" stroke-opacity="0.5"/>')
+    for k in range(70):
+        x = r.uniform(320, 1600); y = r.uniform(650, 750)
+        L = r.uniform(60, 140); t = r.uniform(-0.35, 0.35)
+        col = r.choice(["#5f4630", "#8a6a48", "#a07a50", "#6b5038"])
+        d.add(f'<path d="M{x - L / 2 * math.cos(t):.0f} {y - L / 2 * math.sin(t):.0f} L{x + L / 2 * math.cos(t):.0f} {y + L / 2 * math.sin(t):.0f}" stroke="{col}" stroke-width="{r.uniform(7, 12):.0f}" stroke-linecap="round"/>')
+    for x in (520, 900, 1340):
+        d.add(f'<ellipse cx="{x}" cy="{r.uniform(690, 730):.0f}" rx="{r.uniform(40, 70):.0f}" ry="16" fill="#5a4630" opacity="0.6"/>')
+    # a little water squeezes through the middle of the dam, into the trickle
+    d.add(f'<path d="M944 700 C950 720 948 740 952 766 L968 766 C972 740 970 720 976 700 Z" fill="#7acbe8" stroke="#3f8fb8" stroke-width="3"/>')
+    # the green banks the dam is built against
+    d.add(f'<path d="M0 560 Q200 560 320 660 Q360 720 300 780 L0 800 Z" fill="{d.lin([(0, "#a9cf6c"), (1, "#7fae52")])}" stroke="{INK}" stroke-width="4" stroke-opacity="0.25"/>')
+    d.add(f'<path d="M1920 560 Q1720 560 1600 660 Q1560 720 1620 780 L1920 800 Z" fill="{d.lin([(0, "#a9cf6c"), (1, "#7fae52")])}" stroke="{INK}" stroke-width="4" stroke-opacity="0.25"/>')
+    d.add(cattails(r, 300, 1000, 5)); d.add(cattails(r, 1600, 1010, 5))
+    frame_trees(d)
+    return finish(d)
+
+
 def scenes() -> dict:
     out = {"scene_world_map": scene_world_map()}
     for k in ("road", "forest", "mountain", "river", "swamp"):
         out[f"scene_road_{k}"] = scene_road(k)
     for n in ("meadow fairy_ring mossbrook old_bridge sunken_crypt hermit_hill pennywhistle gloomwood_mine "
               "spider_caves lantern_hollow whispering_falls fishers_dock windy_pass inkwell_cellars "
-              "lair_peak lair_manor lair_belfry").split():
+              "lair_peak lair_manor lair_belfry lair_dam").split():
         out[f"scene_{n}"] = globals()[f"scene_{n}"]()
     return out
