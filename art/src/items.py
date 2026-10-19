@@ -203,6 +203,24 @@ def cloud_whistle():
     ))
 
 
+def shell_horn():
+    """A pink and cream seashell horn with a wide bell, blowing a note over a little wave."""
+    return icon(rg("h", [(0, "#fff4ec"), (0.5, "#f6c8b8"), (1, "#d88a7a")], cx=0.38, cy=0.3, r=0.85), (
+        '<circle cx="80" cy="92" r="56" fill="#cfeeff" opacity="0.35"/>'
+        # the wave it calls up
+        + f'<path d="M14 136 q16 -12 32 0 q16 12 32 0 q16 -12 32 0 q16 12 32 0" fill="none" {S("#4fa3d9", 5)}/>'
+        # the horn: a cone that winds up to a point, with a wide open bell on the left
+        + f'<path d="M50 66 C76 60 112 48 146 30 C140 52 120 82 96 104 C84 114 68 120 54 122 Z" fill="url(#h)" {S("#9a5a4a")}/>'
+        + ''.join(f'<path d="M{70 + k * 18} {62 - k * 7} C{80 + k * 16} {78 - k * 6} {80 + k * 12} {96 - k * 10} {72 + k * 12} {114 - k * 12}" fill="none" {S("#c08070", 3)}/>' for k in range(4))
+        + f'<ellipse cx="50" cy="94" rx="18" ry="30" fill="#f9d6c8" {S("#9a5a4a")}/>'
+        + '<ellipse cx="52" cy="94" rx="10" ry="20" fill="#d88a7a"/><ellipse cx="54" cy="94" rx="5" ry="12" fill="#a85a50" opacity="0.6"/>'
+        + '<path d="M86 64 C104 58 120 50 134 42" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>'
+        # its note
+        + f'<path d="M22 64 l0 -22 l14 -4 l0 22" fill="none" {S("#5a7ad6", 3.5)}/><circle cx="19" cy="65" r="5" fill="#5a7ad6"/><circle cx="33" cy="61" r="5" fill="#5a7ad6"/>'
+        + sparkle(120, 112, 7) + sparkle(140, 84, 5)
+    ))
+
+
 def starlight_jar():
     """A glass jar with a cork, full of tiny twinkling stars."""
     stars = [(64, 92, 6), (90, 80, 7), (78, 112, 5), (100, 108, 6), (70, 70, 4), (96, 126, 4), (60, 124, 4)]
@@ -240,7 +258,7 @@ ITEMS = {
     "lantern": lantern, "rusty_key": rusty_key, "silver_key": silver_key, "lucky_clover": lucky_clover,
     "owl_feather": owl_feather, "hint_scroll": hint_scroll, "storybook_page": storybook_page, "silver_quill": silver_quill,
     "ink_cleaner": ink_cleaner, "recipe_page": recipe_page,
-    "cloud_whistle": cloud_whistle, "starlight_jar": starlight_jar, "magic_beans": magic_beans,
+    "cloud_whistle": cloud_whistle, "starlight_jar": starlight_jar, "shell_horn": shell_horn, "magic_beans": magic_beans,
 }
 
 

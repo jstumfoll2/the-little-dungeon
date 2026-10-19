@@ -248,12 +248,19 @@ GEAR = {
     "sturdy_boots": sturdy_boots, "puddle_boots": puddle_boots, "squeaky_boots": squeaky_boots, "bunny_slippers": bunny_slippers,
 }
 
+WORN_ON_HEAD = {leather_cap: (-12, 1.08, 1.08), iron_helm: (-14, 1.08, 1.08), wizard_hat: (-8, 1.04, 0.85), chicken_hat: (-8, 1.06, 0.95),
+                duck_helmet: (-8, 1.0, 0.82), pot_helmet: (-10, 1.08, 1.0)}
 HELD = {wooden_sword: 30, knight_sword: 30, magic_wand: 26, spoon_sword: 30, banana_blaster: 34, noodle_whip: 26}
 
 
 def overlay(fn) -> str:
     """The gear in the hero's frame, transparent, to lay over the hero."""
     defs, body, _ = fn()
+    if fn in WORN_ON_HEAD:
+        # Head gear is drawn low on the brow; on the hero it sits higher and a little larger, so it covers the
+        # whole crown of the head (no hair dome showing above it) and leaves the eyebrows clear.
+        dy, kx, ky = WORN_ON_HEAD[fn]
+        body = f'<g transform="translate(164 {60 + dy}) scale({kx} {ky}) translate(-164 -60)">{body}</g>'
     if fn in HELD:
         # Held things are drawn standing straight up from the hand; on the hero they lean forward and
         # shrink a little, so the blade or wand points away from the face instead of across it.

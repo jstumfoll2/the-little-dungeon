@@ -40,6 +40,8 @@ internal fun Journey.markedRoad(roads: List<Road>): Road? {
 
 internal fun Journey.travel(): List<JStep> {
     val roads = roadsHere()
+    // Never leave the hero with every road closed: the ones closed for a while open again (a lair has only two roads).
+    if (roads.isNotEmpty() && roads.all { isClosed(it) }) roads.forEach { closed.remove(it.id) }
     val marked = markedRoad(roads)
     val routes = roads.map { r ->
         val to = kingdom.location(r.other(here))
