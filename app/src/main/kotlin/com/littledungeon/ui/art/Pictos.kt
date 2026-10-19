@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.runtime.Composable
 
 /** Simple picture symbols for buttons, drawn in code so there are no text labels to read. */
-enum class Picto { NEXT, LISTEN, PENCIL, AGAIN, HOME, CHECK, BOOK, SPEECH, HEART, BULB, SMILE, SPARKLE, GIFT }
+enum class Picto { NEXT, LISTEN, QUIET, PENCIL, AGAIN, HOME, CHECK, BOOK, SPEECH, HEART, BULB, SMILE, SPARKLE, GIFT }
 
 @Composable
 fun PictoIcon(picto: Picto, color: Color, modifier: Modifier = Modifier) {
@@ -40,6 +40,18 @@ fun PictoIcon(picto: Picto, color: Color, modifier: Modifier = Modifier) {
                 )
                 arc(color, w * 0.5f, w * 0.2f, stroke)
                 arc(color, w * 0.5f, w * 0.36f, stroke)
+            }
+            Picto.QUIET -> {
+                // The same speaker with a cross where the sound waves were: the voice is off.
+                drawPath(
+                    Path().apply {
+                        moveTo(w * 0.12f, w * 0.38f); lineTo(w * 0.3f, w * 0.38f); lineTo(w * 0.52f, w * 0.18f)
+                        lineTo(w * 0.52f, w * 0.82f); lineTo(w * 0.3f, w * 0.62f); lineTo(w * 0.12f, w * 0.62f); close()
+                    },
+                    color,
+                )
+                drawLine(color, Offset(w * 0.64f, w * 0.36f), Offset(w * 0.9f, w * 0.64f), w * 0.11f, StrokeCap.Round)
+                drawLine(color, Offset(w * 0.9f, w * 0.36f), Offset(w * 0.64f, w * 0.64f), w * 0.11f, StrokeCap.Round)
             }
             Picto.PENCIL -> {
                 // A pencil, tip down-left.

@@ -3,6 +3,9 @@ package com.littledungeon.audio
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.littledungeon.engine.model.Speech
 import com.littledungeon.engine.model.Voice
 import com.littledungeon.engine.model.Who
@@ -69,6 +72,22 @@ class Narrator(context: Context, private val name: () -> String) {
     /** How loud the voice is at this moment, 0..1. */
     fun level(): Float = speaker.level()
 
+    private val settings = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+    /**
+     * False when the voice is turned off (for children who read, decision #66): the words still show on screen, sound
+     * effects still play, and each sentence waits a short reading time instead of being heard. The listen button still
+     * reads one aloud. Remembered on this phone.
+     */
+    var talking by mutableStateOf(settings.getBoolean(TALKING, true))
+        private set
+
+    fun setTalking(on: Boolean) {
+        talking = on
+        settings.edit().putBoolean(TALKING, on).apply()
+        if (!on) stop()
+    }
+
     @Volatile
     private var current: Job? = null
 
@@ -86,12 +105,12 @@ class Narrator(context: Context, private val name: () -> String) {
      * these words (the next scene, the answer buttons) never starts over the top of someone still
      * talking. True if it was said to the end.
      */
-    suspend fun speak(speech: List<Speech>): Boolean {
+    suspend fun speak(speech: List<Speech>, aloud: Boolean = talking): Boolean {
         val mine = generation.incrementAndGet()
         current?.cancel()
         var job: Job? = null
         coroutineScope {
-            job = launch { play(Voice.pieces(speech, name()), mine) }
+            job = launch { if (aloud) play(Voice.pieces(speech, name()), mine) else read(Voice.pieces(speech, name()), mine) }
             current = job
             job?.join()
         }
@@ -109,6 +128,9 @@ class Narrator(context: Context, private val name: () -> String) {
 
     suspend fun speak(text: String): Boolean = speak(Speech.of(text))
 
+    /** Says these words even when the voice is turned off: the listen button. */
+    suspend fun speakAloud(speech: List<Speech>): Boolean = speak(speech, aloud = true)
+
     /** Says something short right away, like the count when a coin is tapped. Interrupts. */
     fun blurt(text: String) {
         scope.launch { speak(text) }
@@ -121,11 +143,15 @@ class Narrator(context: Context, private val name: () -> String) {
     fun prepare(speech: List<Speech>) {
         // Branches not taken leave clips behind; let go of finished ones now and then.
         if (pending.size > MAX_PENDING) pending.entries.removeIf { it.value.isCompleted }
-        Voice.pieces(speech, name()).forEach { clip(it) }
+        if (talking) Voice.pieces(speech, name()).forEach { clip(it) }
     }
 
     private companion object {
         const val MAX_PENDING = 60
+        const val TALKING = "talking"
+
+        /** About how long a child who reads takes over a sentence, so the screen does not rush on. */
+        fun readingMillis(text: String): Long = (text.split(' ').count { it.isNotBlank() } * 330L).coerceIn(900L, 4500L)
     }
 
     fun stop() {
@@ -205,6 +231,32 @@ class Narrator(context: Context, private val name: () -> String) {
         } finally {
             // Look-ahead clips stay; this speech's leftovers are dropped if it was cut off.
             if (generation.get() != mine) clips.forEach { (p, d) -> if (d.isCompleted) pending.remove(p) }
+        }
+    }
+
+    /** The voice is off: the same pieces, in the same order, read instead of heard. Sound effects still play. */
+    private suspend fun read(pieces: List<Voice.Piece>, mine: Int) {
+        for (piece in pieces) {
+            if (generation.get() != mine) return
+            announce(piece)
+            when (piece) {
+                is Voice.Piece.Say -> {
+                    _speaking.value = true
+                    _who.value = piece.who
+                    try {
+                        delay(readingMillis(piece.text))
+                    } finally {
+                        _speaking.value = false
+                        _who.value = null
+                    }
+                }
+                is Voice.Piece.Sound -> {
+                    val pcm = clip(piece).await()
+                    pending.remove(piece)
+                    if (pcm != null) speaker.play(pcm, false)
+                    delay(120)
+                }
+            }
         }
     }
 

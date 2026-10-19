@@ -180,11 +180,11 @@ fun AdventureScreen(vm: GameViewModel) {
                 },
                 fontSize = with(LocalDensity.current) { (h * 0.048f).toSp() },
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = h * 0.02f).fillMaxWidth(0.6f),
-                onClick = { scope.launch { narrator.speak(caption) } },
+                onClick = { scope.launch { narrator.speakAloud(caption) } },
             )
         }
         RoundButton(Picto.LISTEN, Palette.Sky, h * 0.14f, Modifier.align(Alignment.TopStart).padding(10.dp)) {
-            scope.launch { narrator.speak(caption) }
+            scope.launch { narrator.speakAloud(caption) }
         }
         FeedbackButton(h * 0.1f, Modifier.align(Alignment.TopStart).padding(start = 10.dp + h * 0.02f, top = 18.dp + h * 0.14f))
         VoiceLoading()
@@ -296,9 +296,11 @@ private fun TellBeat(lines: List<Speech>, say: (List<Speech>) -> Unit, next: () 
         say(lines)
         delay(250)
         narrator.speak(lines)
-        delay(600)
+        delay(if (narrator.talking) 600 else 150)
         next()
     }
+    // With the voice off, a child who reads faster than the page turns taps anywhere to go on.
+    if (!narrator.talking) Box(Modifier.fillMaxSize().clickable(NoRipple, null) { narrator.stop() })
 }
 
 /**
@@ -422,6 +424,12 @@ private fun ChooseBeat(beat: Beat.Choose, say: (List<Speech>) -> Unit, pick: (In
     val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         say(beat.prompt)
+        if (!narrator.talking) {
+            // With the voice off the question is on screen; every picture is there at once, ready to tap.
+            shown = beat.options.size
+            ready = true
+            return@LaunchedEffect
+        }
         narrator.speak(beat.prompt)
         beat.options.forEachIndexed { i, o ->
             pointing = i
@@ -455,7 +463,7 @@ private fun ChooseBeat(beat: Beat.Choose, say: (List<Speech>) -> Unit, pick: (In
                         sfx.play("tap")
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         scope.launch {
-                            narrator.speak(Say.chosen(o.said))
+                            if (narrator.talking) narrator.speak(Say.chosen(o.said))
                             pick(i)
                         }
                     },

@@ -53,7 +53,7 @@ fun Journey.questBook(): QuestBook {
     val finished = Content.quests.filter { it.id !in questsDoneBefore && holds(it.done) }
     return QuestBook(
         story,
-        open.map { q -> QuestEntry(q.id, q.title, Speech.of(stepNow(q)), giver = q.giver) },
+        open.map { questEntry(it) },
         finished.map { q -> QuestEntry(q.id, q.title, Speech.of(QuestBookLines.finished(q)), giver = q.giver, done = true) },
         Speech.of(tip()),
         bagEntries(),
@@ -70,7 +70,13 @@ private fun Journey.storySoFar(): List<String> = buildList {
     add(QuestBookLines.storyStep(arc, hero.has(arc.keyItemId)))
 }
 
-private fun Journey.stepNow(q: Quest): String = (q.steps.firstOrNull { !holds(it.until) } ?: q.steps.last()).says
+/** An open quest at the step it is on, said only as far as the hero knows: a guess until they meet whom it names. */
+private fun Journey.questEntry(q: Quest): QuestEntry {
+    val step = q.steps.firstOrNull { !holds(it.until) } ?: q.steps.last()
+    val guess = step.guess?.takeUnless { holds(step.knows) } ?: return QuestEntry(q.id, q.title, Speech.of(step.says), giver = q.giver)
+    val secret = q.secret ?: return QuestEntry(q.id, q.title, Speech.of(guess), giver = q.giver)
+    return QuestEntry(q.id, secret.title, Speech.of(guess), itemId = secret.itemId)
+}
 
 /** The baby dragon points the way: the next place down the road the story marks, toward where the story goes next. */
 private fun Journey.tip(): String {
@@ -135,7 +141,7 @@ object QuestBookLines {
             add(storyStep(arc, true))
         }
         for (q in Content.quests) {
-            q.steps.forEach { add(it.says) }
+            q.steps.forEach { add(it.says); it.guess?.let(::add) }
             add(finished(q))
         }
         val names = Content.locations.map { it.name }

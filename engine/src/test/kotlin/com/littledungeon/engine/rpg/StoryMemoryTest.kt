@@ -191,7 +191,7 @@ class StoryMemoryTest {
             (arc.peaceSteps + arc.friendSteps).forEach { s -> s.skippedBy?.let { read += it } }
         }
         // The quest book reads flags too, and so do the story's clues in it.
-        for (q in Content.quests) (q.starts + q.done + q.steps.flatMap { it.until }).forEach(::cond)
+        for (q in Content.quests) (q.starts + q.done + q.steps.flatMap { it.until + it.knows }).forEach(::cond)
         for (arc in Content.arcs) read += arc.clues.map { it.flag }
         read += Content.flagRoads.keys
         // The engine sets and reads these itself: who has been met, who is a friend, who is a rival.

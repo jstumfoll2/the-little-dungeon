@@ -57,6 +57,7 @@ import com.littledungeon.engine.rpg.hero.HeroClass
 import com.littledungeon.engine.rpg.hero.Progression
 import com.littledungeon.engine.rpg.run.Place
 import com.littledungeon.ui.art.Character
+import com.littledungeon.feedback.FeedbackLog
 import com.littledungeon.ui.art.Mood
 import com.littledungeon.ui.art.Picto
 import com.littledungeon.ui.art.PictoIcon
@@ -145,6 +146,15 @@ fun TitleScreen(vm: GameViewModel) {
         // Level and stars
         LevelBadge(hero.level, Progression.progress(hero.totalXp), Modifier.align(Alignment.TopStart).padding(12.dp), h * 0.12f)
         FeedbackButton(h * 0.1f, Modifier.align(Alignment.BottomStart).padding(12.dp))
+        // The voice on or off, for children who read (decision #66). Off, the words still show and the listen buttons still work.
+        RoundButton(
+            if (narrator.talking) Picto.LISTEN else Picto.QUIET, if (narrator.talking) Palette.Sky else Color(0xFF8A8A8A), h * 0.12f,
+            Modifier.align(Alignment.TopEnd).padding(12.dp),
+        ) {
+            sfx.play("tap")
+            FeedbackLog.note("settings", "talking ${!narrator.talking}")
+            narrator.setTalking(!narrator.talking)
+        }
 
         // Pick a hero
         Row(
